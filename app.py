@@ -2068,13 +2068,27 @@ def recargar_items():
     return redirect(url_for("index"))
 
 
-if __name__ == "__main__":
+def inicializar_app():
+    """
+    Inicializa base de datos e ítems al arrancar.
+
+    Importante:
+    En Render/Gunicorn el bloque if __name__ == "__main__" NO se ejecuta.
+    Por eso esta inicialización debe ejecutarse al importar app.py.
+    """
     crear_bd()
     total, mensaje = cargar_items_desde_excel(forzar=False)
     aplicar_ajustes_comunes()
     aplicar_ajustes_colchon_aire_solo_app()
     print(mensaje)
     print(f"Ítems disponibles: {total}")
+
+
+# Ejecutar inicialización también cuando la app corre con Gunicorn en Render.
+inicializar_app()
+
+
+if __name__ == "__main__":
     print("Abre desde esta PC: http://127.0.0.1:5000")
     print("Desde celular usa la IP que aparezca abajo, ejemplo: http://192.168.1.102:5000")
 
