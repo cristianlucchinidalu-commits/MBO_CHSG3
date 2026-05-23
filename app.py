@@ -11,15 +11,46 @@ from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# En nube se recomienda usar un disco persistente.
-# En Render puedes montar el disco en /var/data y definir DATA_DIR=/var/data.
-DATA_DIR = os.environ.get("DATA_DIR") or ("/var/data" if os.path.isdir("/var/data") else BASE_DIR)
+
+def resolver_data_dir():
+    """
+    Define una carpeta escribible para SQLite, fotos y exportaciones.
+
+    En Render Free NO siempre se puede escribir en /var/data si no hay disco persistente.
+    Por eso se prueba DATA_DIR y, si falla, se usa /tmp automáticamente.
+    """
+    candidatos = []
+
+    env_dir = os.environ.get("DATA_DIR", "").strip()
+    if env_dir:
+        candidatos.append(env_dir)
+
+    candidatos.extend([
+        "/tmp",
+        os.path.join(BASE_DIR, "data"),
+        BASE_DIR,
+    ])
+
+    for carpeta in candidatos:
+        try:
+            os.makedirs(carpeta, exist_ok=True)
+            prueba = os.path.join(carpeta, ".write_test")
+            with open(prueba, "w", encoding="utf-8") as f:
+                f.write("ok")
+            os.remove(prueba)
+            return carpeta
+        except Exception as e:
+            print(f"No se puede usar DATA_DIR={carpeta}: {e}")
+
+    return "/tmp"
+
+
+DATA_DIR = resolver_data_dir()
 
 DB_PATH = os.path.join(DATA_DIR, "mbo.db")
 UPLOAD_DIR = os.path.join(DATA_DIR, "uploads")
 EXPORT_DIR = os.path.join(DATA_DIR, "exports")
 
-os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(EXPORT_DIR, exist_ok=True)
 
