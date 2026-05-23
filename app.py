@@ -85,29 +85,42 @@ def normalizar(valor):
 
 def opciones_selector_valor(referencia):
     """
-    Devuelve opciones para referencias operativas.
+    Devuelve opciones tipo selector para referencias operativas.
     Si no reconoce una referencia especial, devuelve lista vacía y se usa input libre.
     """
     ref = normalizar(referencia)
 
+    # OK/NOK
     if "OK" in ref and "NOK" in ref:
         return [
             {"value": "OK", "label": "OK"},
             {"value": "NOK", "label": "NOK"},
         ]
 
+    # SI / NO
+    # Cubre referencias como: SI/NO, SI / NO, SÍ / NO.
+    if ("SI" in ref and "NO" in ref) or ("S/" in ref and "N/" in ref):
+        return [
+            {"value": "SI", "label": "SI"},
+            {"value": "NO", "label": "NO"},
+        ]
+
+    # L: Local R: Remoto
     if "LOCAL" in ref and "REMOTO" in ref:
         return [
             {"value": "L", "label": "L"},
             {"value": "R", "label": "R"},
         ]
 
-    if "AUTOMATICO" in ref and "MANUAL" in ref:
+    # A: Auto / Automático  M: Manual
+    # Cubre: A: Auto M: Manual, A: Automatico M: Manual, Automático/Manual.
+    if (("AUTO" in ref or "AUTOMATICO" in ref) and "MANUAL" in ref):
         return [
             {"value": "A", "label": "A"},
             {"value": "M", "label": "M"},
         ]
 
+    # C: Cerrado A: Abierto
     if "CERRADO" in ref and "ABIERTO" in ref:
         return [
             {"value": "C", "label": "C"},
