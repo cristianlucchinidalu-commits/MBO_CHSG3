@@ -1342,7 +1342,7 @@ HTML_INDEX = """
                 </div>
             </div>
 
-            <p class="small">Solo se guardarán los ítems donde ingreses valor, observación o foto.</p>
+            <p class="small">Solo se mostrarán por defecto los ítems pendientes. Los llenados se ocultan para evitar confusión.</p>
         </div>
 
         {% if items %}
@@ -1478,7 +1478,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const progressText = document.getElementById("progressText");
     const nivelChips = Array.from(document.querySelectorAll(".nivel-chip"));
 
-    let filtroModo = "todos";
+    let filtroModo = "pendientes";
     let filtroNivel = "";
 
     const formMbo = document.querySelector("form");
