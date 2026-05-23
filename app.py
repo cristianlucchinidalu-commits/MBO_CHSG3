@@ -1855,7 +1855,12 @@ document.addEventListener("DOMContentLoaded", function(){
             setTimeout(() => row.classList.remove("autosaved"), 900);
 
             actualizarCompletados();
-            aplicarFiltro();
+
+            // Si el operador todavía está trabajando dentro de la fila,
+            // no aplicar filtro para no ocultarla.
+            if(!row.contains(document.activeElement)){
+                aplicarFiltro();
+            }
 
             mostrarAutosaveToast("Guardado automático");
         }catch(err){
@@ -1937,16 +1942,36 @@ document.addEventListener("DOMContentLoaded", function(){
         actualizarVisibilidadGrupos();
     }
 
+    function guardarFilaSiSalio(row){
+        if(!row) return;
+
+        // Espera un instante para saber si el operador pasó de VALOR a OBSERVACIÓN
+        // dentro de la misma fila. Si sigue dentro de la fila, NO guarda todavía.
+        setTimeout(() => {
+            if(row.contains(document.activeElement)){
+                return;
+            }
+
+            const valor = row.querySelector("input.valor");
+            if(valor){
+                aplicarConversionHoras(valor);
+            }
+
+            actualizarCompletados();
+            programarAutosave(row, true);
+        }, 180);
+    }
+
     document.querySelectorAll(".campo-control").forEach(campo => {
         campo.addEventListener("input", function(){
-            // Mientras el operador escribe NO se guarda todavía.
-            // Esto evita que la fila se oculte al primer número cuando está activo "Solo pendientes".
+            // Mientras el operador escribe NO se guarda ni se oculta la fila.
             actualizarCompletados();
         });
 
         campo.addEventListener("keydown", function(e){
-            // Para VALOR y OBSERVACIÓN: guardar cuando se presiona Enter.
-            if(e.key === "Enter" && campo.type !== "file"){
+            // Enter = guardar la fila actual.
+            // Shift+Enter en observación permite salto de línea.
+            if(e.key === "Enter" && campo.type !== "file" && !e.shiftKey){
                 e.preventDefault();
 
                 const row = campo.closest(".item-row");
@@ -1969,8 +1994,8 @@ document.addEventListener("DOMContentLoaded", function(){
                 actualizarCompletados();
             }
 
-            // Guardar cuando el operador termina y sale del campo.
-            programarAutosave(row, true);
+            // No guardar si el foco pasó a OBSERVACIÓN o FOTO dentro de la misma fila.
+            guardarFilaSiSalio(row);
         });
 
         campo.addEventListener("change", function(){
@@ -1996,11 +2021,11 @@ document.addEventListener("DOMContentLoaded", function(){
                     nombre.textContent = (campo.files && campo.files[0]) ? "Foto cargada" : "Sin foto";
                 }
 
-                // La foto sí se guarda de inmediato cuando se selecciona.
-                programarAutosave(row, true);
+                // Foto: guardar solo cuando salga de la fila, para permitir escribir observación.
+                guardarFilaSiSalio(row);
             }else if(campo.classList.contains("valor-choice")){
-                // Los selectores OK/NOK, L/R, A/M, C/A, F/E sí se guardan de inmediato.
-                programarAutosave(row, true);
+                // Selector: guardar solo cuando salga de la fila, para permitir escribir observación.
+                guardarFilaSiSalio(row);
             }
         });
     });
