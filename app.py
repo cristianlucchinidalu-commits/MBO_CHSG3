@@ -1403,15 +1403,6 @@ HTML_INDEX = """
                 padding:4px 10px;
             }
 
-            .desc-topline{
-                flex-direction:column;
-                gap:6px;
-            }
-
-            .estado-pill{
-                width:max-content;
-            }
-
             .foto-pill{
                 width:100%;
             }
@@ -1613,10 +1604,7 @@ HTML_INDEX = """
                         </td>
 
                         <td class="desc desc-cell" data-label="DESCRIPCIÓN">
-                            <div class="desc-topline">
-                                <div class="desc-main">{{ item['descripcion'] }}</div>
-                                <span class="estado-pill estado-pendiente">Pendiente</span>
-                            </div>
+                            <div class="desc-main">{{ item['descripcion'] }}</div>
                             {% if item['referencia'] %}
                                 <div class="ref-inline">REF: {{ item['referencia'] }}</div>
                             {% endif %}
@@ -1807,13 +1795,6 @@ document.addEventListener("DOMContentLoaded", function(){
         rows.forEach(row => {
             const lleno = rowTieneDato(row);
             row.classList.toggle("row-complete", lleno);
-
-            const estado = row.querySelector(".estado-pill");
-            if(estado){
-                estado.textContent = lleno ? "Listo" : "Pendiente";
-                estado.classList.toggle("estado-listo", lleno);
-                estado.classList.toggle("estado-pendiente", !lleno);
-            }
 
             if(lleno) completos++;
         });
