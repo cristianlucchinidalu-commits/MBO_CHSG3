@@ -1000,6 +1000,148 @@ HTML_INDEX = """
             display:none !important;
         }
 
+        /* VISTA TIPO EXCEL POR BLOQUES */
+        #tablaMBO{
+            table-layout:fixed;
+            border-collapse:collapse;
+            border-spacing:0;
+        }
+
+        #tablaMBO th:nth-child(1),
+        #tablaMBO th:nth-child(2),
+        #tablaMBO th:nth-child(3),
+        #tablaMBO th:nth-child(7),
+        #tablaMBO tr.item-row td:nth-child(1),
+        #tablaMBO tr.item-row td:nth-child(2),
+        #tablaMBO tr.item-row td:nth-child(3),
+        #tablaMBO tr.item-row td:nth-child(7){
+            display:none !important;
+        }
+
+        #tablaMBO th:nth-child(4){ width:36%; }
+        #tablaMBO th:nth-child(5){ width:7%; }
+        #tablaMBO th:nth-child(6){ width:9%; }
+        #tablaMBO th:nth-child(8){ width:14%; }
+        #tablaMBO th:nth-child(9){ width:20%; }
+        #tablaMBO th:nth-child(10){ width:14%; }
+
+        #tablaMBO th{
+            background:#f8fafc;
+            color:#020617;
+            font-size:15px;
+            font-weight:800;
+            border:1px solid #111827;
+            padding:10px 12px;
+        }
+
+        #tablaMBO td{
+            border:1px solid #111827;
+            padding:10px 12px;
+            font-size:15px;
+        }
+
+        #tablaMBO .grupo td{
+            display:table-cell !important;
+            background:#48b7dc !important;
+            color:#020617;
+            font-weight:900;
+            font-size:21px;
+            letter-spacing:.3px;
+            text-transform:uppercase;
+            border:1px solid #111827;
+            position:sticky;
+            top:39px;
+            z-index:4;
+            padding:12px 16px;
+        }
+
+        #tablaMBO .grupo td::before{
+            content:"▾ ";
+            color:#020617;
+        }
+
+        #tablaMBO .grupo.collapsed td::before{
+            content:"▸ ";
+        }
+
+        #tablaMBO tr:nth-child(even).item-row td{
+            background:#d7eef7;
+        }
+
+        #tablaMBO tr:nth-child(odd).item-row td{
+            background:#ffffff;
+        }
+
+        #tablaMBO tr.item-row:hover td{
+            background:#fff7d6 !important;
+        }
+
+        #tablaMBO tr.item-row.row-complete td{
+            background:#e8f8ee !important;
+        }
+
+        #tablaMBO .desc{
+            min-width:0;
+            font-size:17px;
+            font-weight:800;
+            color:#020617;
+        }
+
+        .desc-main{
+            font-weight:800;
+        }
+
+        .ref-inline{
+            margin-top:5px;
+            font-size:12px;
+            font-weight:700;
+            color:#334155;
+            background:#eef2ff;
+            border:1px solid #c7d2fe;
+            border-radius:999px;
+            display:inline-block;
+            padding:3px 9px;
+        }
+
+        #tablaMBO .center{
+            font-size:17px;
+            font-weight:700;
+        }
+
+        #tablaMBO input.valor,
+        #tablaMBO textarea.obs{
+            width:100%;
+            min-width:0;
+            border-radius:8px;
+            border:1px solid #9ca3af;
+            background:white;
+        }
+
+        #tablaMBO input.valor{
+            min-height:42px;
+            text-align:center;
+        }
+
+        #tablaMBO textarea.obs{
+            min-height:42px;
+            resize:vertical;
+        }
+
+        #tablaMBO .choice-group{
+            min-width:0;
+            justify-content:center;
+        }
+
+        #tablaMBO .choice-pill span{
+            min-width:54px;
+            border-radius:10px;
+        }
+
+        #tablaMBO input.foto{
+            width:100%;
+            max-width:220px;
+        }
+
         .pill{
             display:inline-block;
             padding:4px 8px;
@@ -1103,6 +1245,13 @@ HTML_INDEX = """
                 width:100%;
             }
 
+            #tablaMBO tr.item-row td:nth-child(1),
+            #tablaMBO tr.item-row td:nth-child(2),
+            #tablaMBO tr.item-row td:nth-child(3),
+            #tablaMBO tr.item-row td:nth-child(7){
+                display:none !important;
+            }
+
             thead{
                 display:none;
             }
@@ -1114,13 +1263,15 @@ HTML_INDEX = """
             .grupo td{
                 position:relative;
                 top:auto;
-                border-radius:14px;
+                border-radius:12px;
                 margin:0;
-                padding:11px 12px;
-                font-size:13px;
+                padding:12px 14px;
+                font-size:15px;
                 line-height:1.35;
-                border:0;
+                border:1px solid #111827;
                 box-shadow:0 5px 14px rgba(15,23,42,.10);
+                background:#48b7dc !important;
+                color:#020617;
             }
 
             tr.item-row{
@@ -1191,7 +1342,8 @@ HTML_INDEX = """
             }
 
             .desc-cell{
-                display:block !important;
+                display:grid !important;
+                grid-template-columns:96px minmax(0, 1fr);
             }
 
             .desc-cell::before{
@@ -1400,11 +1552,9 @@ HTML_INDEX = """
                     {% if grupo_actual != ns.grupo %}
                         <tr class="grupo group-row" data-nivel="{{ item['nivel'] or '' }}">
                             <td colspan="10">
-                                NIVEL: {{ item['nivel'] or '-' }}
-                                &nbsp;&nbsp; | &nbsp;&nbsp;
-                                SISTEMA: {{ item['sistema'] or '-' }}
+                                {{ item['nivel'] or '-' }} / {{ item['sistema'] or '-' }}
                                 {% if item['equipo'] %}
-                                    &nbsp;&nbsp; | &nbsp;&nbsp; EQUIPO: {{ item['equipo'] }}
+                                    / {{ item['equipo'] }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -1429,7 +1579,12 @@ HTML_INDEX = """
                             {% endif %}
                         </td>
 
-                        <td class="desc desc-cell" data-label="DESCRIPCIÓN">{{ item['descripcion'] }}</td>
+                        <td class="desc desc-cell" data-label="DESCRIPCIÓN">
+                            <div class="desc-main">{{ item['descripcion'] }}</div>
+                            {% if item['referencia'] %}
+                                <div class="ref-inline">REF: {{ item['referencia'] }}</div>
+                            {% endif %}
+                        </td>
 
                         <td class="center" data-label="UNIDAD">{{ item['unidad'] or '' }}</td>
 
@@ -1541,7 +1696,7 @@ document.addEventListener("DOMContentLoaded", function(){
     function convertirDuracionHoras(texto){
         let raw = (texto || "").trim().toUpperCase().replace(",", ".");
         raw = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        raw = raw.replace(/\s+/g, "");
+        raw = raw.replace(/\\s+/g, "");
 
         if(!/[DHMS]/.test(raw)) return null;
 
