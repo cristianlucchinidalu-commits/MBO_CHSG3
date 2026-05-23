@@ -130,6 +130,66 @@ def opciones_selector_valor(referencia):
     return []
 
 
+def es_item_horas_operacion(item):
+    """
+    Detecta ítems de horas de operación.
+    Se usa para convertir entradas tipo 20D15H20M10S a horas decimales.
+    """
+    unidad = normalizar(item.get("unidad", "") if isinstance(item, dict) else item["unidad"])
+    descripcion = normalizar(item.get("descripcion", "") if isinstance(item, dict) else item["descripcion"])
+
+    return (
+        unidad in ("HRS", "HR", "H")
+        or "HORAS DE OPERACION" in descripcion
+        or "HORAS OPERACION" in descripcion
+    )
+
+
+def convertir_duracion_a_horas(valor):
+    """
+    Convierte formatos como:
+    20D15H20M10S -> 495.3361
+    15H20M10S    -> 15.3361
+    20M10S       -> 0.3361
+
+    Si el texto no tiene formato de duración, devuelve None.
+    """
+    texto_original = limpiar_texto(valor)
+    if not texto_original:
+        return None
+
+    texto = normalizar(texto_original).replace(",", ".")
+    texto = re.sub(r"\s+", "", texto)
+
+    # Debe contener por lo menos una unidad D/H/M/S.
+    if not re.search(r"[DHMS]", texto):
+        return None
+
+    patron = re.compile(
+        r"^(?:(?P<d>\d+(?:\.\d+)?)D)?"
+        r"(?:(?P<h>\d+(?:\.\d+)?)H)?"
+        r"(?:(?P<m>\d+(?:\.\d+)?)M)?"
+        r"(?:(?P<s>\d+(?:\.\d+)?)S)?$"
+    )
+
+    m = patron.match(texto)
+    if not m:
+        return None
+
+    if not any(m.group(k) for k in ("d", "h", "m", "s")):
+        return None
+
+    dias = float(m.group("d") or 0)
+    horas = float(m.group("h") or 0)
+    minutos = float(m.group("m") or 0)
+    segundos = float(m.group("s") or 0)
+
+    total_horas = dias * 24 + horas + minutos / 60 + segundos / 3600
+
+    # 4 decimales, quitando ceros sobrantes.
+    return f"{total_horas:.4f}".rstrip("0").rstrip(".")
+
+
 def buscar_excel_mbo():
     # Busca primero junto al app.py y luego en DATA_DIR.
     carpetas = []
@@ -1383,7 +1443,7 @@ HTML_INDEX = """
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                <input class="valor campo-control" type="text" name="valor_{{ item['id'] }}" placeholder="Valor">
+                                <input class="valor campo-control" type="text" name="valor_{{ item['id'] }}" placeholder="{% if item.get('convertir_horas') %}Ej: 20D15H20M10S{% else %}Valor{% endif %}" data-convert-horas="{% if item.get('convertir_horas') %}1{% else %}0{% endif %}">
                             {% endif %}
                         </td>
 
@@ -1420,6 +1480,38 @@ document.addEventListener("DOMContentLoaded", function(){
 
     let filtroModo = "todos";
     let filtroNivel = "";
+
+    function convertirDuracionHoras(texto){
+        let raw = (texto || "").trim().toUpperCase().replace(",", ".");
+        raw = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        raw = raw.replace(/\s+/g, "");
+
+        if(!/[DHMS]/.test(raw)) return null;
+
+        const patron = /^(?:(\d+(?:\.\d+)?)D)?(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?$/;
+        const m = raw.match(patron);
+        if(!m) return null;
+
+        const d = parseFloat(m[1] || "0");
+        const h = parseFloat(m[2] || "0");
+        const min = parseFloat(m[3] || "0");
+        const s = parseFloat(m[4] || "0");
+
+        if(d === 0 && h === 0 && min === 0 && s === 0) return null;
+
+        const total = d * 24 + h + min / 60 + s / 3600;
+        return parseFloat(total.toFixed(4)).toString();
+    }
+
+    function aplicarConversionHoras(campo){
+        if(!campo || campo.dataset.convertHoras !== "1") return;
+
+        const convertido = convertirDuracionHoras(campo.value);
+        if(convertido !== null){
+            campo.value = convertido;
+            campo.title = "Convertido automáticamente a horas";
+        }
+    }
 
     function rowTieneDato(row){
         const valor = row.querySelector("input.valor");
@@ -1497,7 +1589,19 @@ document.addEventListener("DOMContentLoaded", function(){
             aplicarFiltro();
         });
 
+        campo.addEventListener("blur", function(){
+            if(campo.classList.contains("valor")){
+                aplicarConversionHoras(campo);
+                actualizarCompletados();
+                aplicarFiltro();
+            }
+        });
+
         campo.addEventListener("change", function(){
+            if(campo.classList.contains("valor")){
+                aplicarConversionHoras(campo);
+            }
+
             actualizarCompletados();
             aplicarFiltro();
 
@@ -1855,6 +1959,7 @@ def index():
     for item in items_raw:
         item_dict = dict(item)
         item_dict["valor_opciones"] = opciones_selector_valor(item_dict.get("referencia", ""))
+        item_dict["convertir_horas"] = es_item_horas_operacion(item_dict)
         items.append(item_dict)
 
     niveles = []
@@ -1899,6 +2004,12 @@ def guardar_zona():
     for item in items:
         item_id = item["id"]
         valor = limpiar_texto(request.form.get(f"valor_{item_id}", ""))
+
+        if valor and es_item_horas_operacion(item):
+            valor_convertido = convertir_duracion_a_horas(valor)
+            if valor_convertido is not None:
+                valor = valor_convertido
+
         observacion = limpiar_texto(request.form.get(f"obs_{item_id}", ""))
         foto_file = request.files.get(f"foto_{item_id}")
         nombre_foto = ""
