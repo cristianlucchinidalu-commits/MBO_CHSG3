@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, date, time, timedelta
 from copy import copy
 from unicodedata import normalize
-from flask import Flask, render_template_string, request, redirect, url_for, send_file, send_from_directory, flash, session
+from flask import Flask, render_template_string, request, redirect, url_for, send_file, send_from_directory, flash, session, jsonify
 from werkzeug.utils import secure_filename
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
@@ -1398,11 +1398,6 @@ HTML_INDEX = """
                 gap:8px;
             }
 
-            .group-count{
-                font-size:12px;
-                padding:4px 10px;
-            }
-
             .foto-pill{
                 width:100%;
             }
@@ -1578,7 +1573,6 @@ HTML_INDEX = """
                                             / {{ item['equipo'] }}
                                         {% endif %}
                                     </span>
-                                    <span class="group-count">0 / 0 llenados</span>
                                 </div>
                             </td>
                         </tr>
@@ -1586,6 +1580,7 @@ HTML_INDEX = """
                     {% endif %}
 
                     <tr class="item-row"
+                        data-item-id="{{ item['id'] }}"
                         data-nivel="{{ item['nivel'] or '' }}"
                         data-search="{{ (item['nivel'] ~ ' ' ~ item['sistema'] ~ ' ' ~ item['equipo'] ~ ' ' ~ item['descripcion'] ~ ' ' ~ item['unidad'] ~ ' ' ~ item['senal'] ~ ' ' ~ item['referencia'])|lower }}">
 
@@ -1656,6 +1651,8 @@ HTML_INDEX = """
         {% endif %}
     </form>
 </div>
+
+<div id="autosaveToast" class="autosave-toast">Guardado automático</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function(){
@@ -1753,6 +1750,121 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     }
 
+    const autosaveToast = document.getElementById("autosaveToast");
+    const autosaveTimers = new Map();
+
+    function mostrarAutosaveToast(texto, tipo){
+        if(!autosaveToast) return;
+
+        autosaveToast.textContent = texto || "Guardado automático";
+        autosaveToast.classList.remove("warn", "error");
+
+        if(tipo === "warn") autosaveToast.classList.add("warn");
+        if(tipo === "error") autosaveToast.classList.add("error");
+
+        autosaveToast.classList.add("show");
+
+        clearTimeout(autosaveToast._timer);
+        autosaveToast._timer = setTimeout(() => {
+            autosaveToast.classList.remove("show");
+        }, 1700);
+    }
+
+    function obtenerValorFila(row){
+        const valor = row.querySelector("input.valor");
+        const valorChoice = row.querySelector("input.valor-choice:checked");
+
+        if(valor) return valor.value.trim();
+        if(valorChoice) return valorChoice.value.trim();
+
+        return "";
+    }
+
+    function programarAutosave(row, inmediato=false){
+        if(!row || !row.dataset.itemId) return;
+
+        clearTimeout(autosaveTimers.get(row));
+
+        const espera = inmediato ? 100 : 850;
+        const timer = setTimeout(() => autosaveFila(row), espera);
+
+        autosaveTimers.set(row, timer);
+    }
+
+    async function autosaveFila(row){
+        if(!row || !row.dataset.itemId) return;
+        if(!rowTieneDato(row)) return;
+
+        if(!operadorRegistro || !operadorRegistro.value.trim()){
+            mostrarAutosaveToast("Ingresa operador", "warn");
+            return;
+        }
+
+        aplicarFechaHoraActual();
+
+        const formData = new FormData();
+        const zonaInput = document.querySelector("input[name='zona']");
+
+        formData.append("item_id", row.dataset.itemId);
+        formData.append("zona", zonaInput ? zonaInput.value : "");
+        formData.append("fecha", fechaRegistro ? fechaRegistro.value : "");
+        formData.append("hora", horaRegistro ? horaRegistro.value : "");
+        formData.append("usuario", operadorRegistro ? operadorRegistro.value.trim() : "");
+        formData.append("valor", obtenerValorFila(row));
+
+        const obs = row.querySelector("textarea.obs");
+        formData.append("observacion", obs ? obs.value.trim() : "");
+
+        const foto = row.querySelector("input.foto");
+        if(foto && foto.files && foto.files[0]){
+            formData.append("foto", foto.files[0]);
+        }
+
+        row.classList.add("autosaving");
+
+        try{
+            const resp = await fetch("{{ url_for('autosave_item') }}", {
+                method:"POST",
+                body:formData,
+                credentials:"same-origin"
+            });
+
+            const data = await resp.json();
+
+            if(!resp.ok || !data.ok){
+                throw new Error(data.error || "No se pudo guardar");
+            }
+
+            if(data.valor_convertido){
+                const valor = row.querySelector("input.valor");
+                if(valor) valor.value = data.valor_convertido;
+            }
+
+            if(data.foto){
+                row.dataset.fotoGuardada = "1";
+                if(foto) foto.value = "";
+
+                const celda = row.querySelector("td[data-label='FOTO']");
+                const nombre = celda ? celda.querySelector(".foto-name") : null;
+                if(nombre) nombre.textContent = "Foto guardada";
+            }
+
+            row.classList.remove("autosaving");
+            row.classList.add("autosaved");
+
+            setTimeout(() => row.classList.remove("autosaved"), 900);
+
+            actualizarCompletados();
+            aplicarFiltro();
+
+            mostrarAutosaveToast("Guardado automático");
+        }catch(err){
+            row.classList.remove("autosaving");
+            console.error(err);
+            mostrarAutosaveToast("Error al guardar", "error");
+        }
+    }
+
     function rowTieneDato(row){
         const valor = row.querySelector("input.valor");
         const obs = row.querySelector("textarea.obs");
@@ -1762,31 +1874,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
         const tieneValor = (valor && valor.value.trim() !== "") || !!valorChoice;
         const tieneObs = obs && obs.value.trim() !== "";
-        const tieneFoto = foto && foto.files && foto.files.length > 0;
+        const tieneFoto = (foto && foto.files && foto.files.length > 0) || row.dataset.fotoGuardada === "1";
 
         return tieneValor || tieneObs || tieneFoto;
-    }
-
-    function actualizarConteoGrupos(){
-        groups.forEach(group => {
-            let next = group.nextElementSibling;
-            let total = 0;
-            let completos = 0;
-
-            while(next && !next.classList.contains("group-row")){
-                if(next.classList.contains("item-row")){
-                    total++;
-                    if(rowTieneDato(next)) completos++;
-                }
-                next = next.nextElementSibling;
-            }
-
-            const badge = group.querySelector(".group-count");
-            if(badge){
-                badge.textContent = completos + " / " + total + " llenados";
-                badge.classList.toggle("complete", total > 0 && completos === total);
-            }
-        });
     }
 
     function actualizarCompletados(){
@@ -1810,7 +1900,6 @@ document.addEventListener("DOMContentLoaded", function(){
             progressText.textContent = completos + " / " + rows.length + " llenados";
         }
 
-        actualizarConteoGrupos();
     }
 
     function actualizarVisibilidadGrupos(){
@@ -1846,30 +1935,40 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
         actualizarVisibilidadGrupos();
-        actualizarConteoGrupos();
     }
 
     document.querySelectorAll(".campo-control").forEach(campo => {
         campo.addEventListener("input", function(){
             actualizarCompletados();
+
+            const row = campo.closest(".item-row");
+            if(campo.type !== "file"){
+                programarAutosave(row, false);
+            }
+
             aplicarFiltro();
         });
 
         campo.addEventListener("blur", function(){
+            const row = campo.closest(".item-row");
+
             if(campo.classList.contains("valor")){
                 aplicarConversionHoras(campo);
                 actualizarCompletados();
-                aplicarFiltro();
             }
+
+            programarAutosave(row, true);
+            aplicarFiltro();
         });
 
         campo.addEventListener("change", function(){
+            const row = campo.closest(".item-row");
+
             if(campo.classList.contains("valor")){
                 aplicarConversionHoras(campo);
             }
 
             actualizarCompletados();
-            aplicarFiltro();
 
             if(campo.type === "file"){
                 const celda = campo.closest("td");
@@ -1885,6 +1984,9 @@ document.addEventListener("DOMContentLoaded", function(){
                     nombre.textContent = (campo.files && campo.files[0]) ? "Foto cargada" : "Sin foto";
                 }
             }
+
+            programarAutosave(row, true);
+            aplicarFiltro();
         });
     });
 
@@ -2283,6 +2385,159 @@ def index():
     )
 
 
+def guardar_o_actualizar_registro(cur, item, fecha, hora, usuario, zona, valor, observacion, nombre_foto, fecha_registro):
+    """
+    Guarda un registro MBO sin duplicar.
+    Si ya existe un registro para la misma fecha, zona e ítem, lo actualiza.
+    """
+    cur.execute("""
+        SELECT id, foto
+        FROM registros_mbo
+        WHERE fecha = ? AND zona = ? AND item_id = ?
+        ORDER BY id DESC
+        LIMIT 1
+    """, (fecha, zona, item["id"]))
+    existente = cur.fetchone()
+
+    foto_final = nombre_foto
+    if existente and not foto_final:
+        foto_final = existente["foto"] or ""
+
+    if existente:
+        cur.execute("""
+            UPDATE registros_mbo
+            SET hora = ?,
+                usuario = ?,
+                nivel = ?,
+                sistema = ?,
+                equipo = ?,
+                descripcion = ?,
+                unidad = ?,
+                senal = ?,
+                seteos = ?,
+                referencia = ?,
+                valor = ?,
+                observacion = ?,
+                foto = ?,
+                fecha_registro = ?,
+                estado = ?
+            WHERE id = ?
+        """, (
+            hora,
+            usuario,
+            item["nivel"],
+            item["sistema"],
+            item["equipo"],
+            item["descripcion"],
+            item["unidad"],
+            item["senal"],
+            item["seteos"],
+            item["referencia"],
+            valor,
+            observacion,
+            foto_final,
+            fecha_registro,
+            "REGISTRADO",
+            existente["id"],
+        ))
+        return "actualizado", foto_final
+
+    cur.execute("""
+        INSERT INTO registros_mbo
+        (fecha, hora, usuario, zona, item_id, nivel, sistema, equipo, descripcion,
+         unidad, senal, seteos, referencia, valor, observacion, foto, fecha_registro, estado)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        fecha,
+        hora,
+        usuario,
+        zona,
+        item["id"],
+        item["nivel"],
+        item["sistema"],
+        item["equipo"],
+        item["descripcion"],
+        item["unidad"],
+        item["senal"],
+        item["seteos"],
+        item["referencia"],
+        valor,
+        observacion,
+        foto_final,
+        fecha_registro,
+        "REGISTRADO",
+    ))
+    return "insertado", foto_final
+
+
+
+@app.route("/autosave_item", methods=["POST"])
+def autosave_item():
+    ahora_guardado = datetime.now()
+
+    fecha = request.form.get("fecha", "") or ahora_guardado.strftime("%Y-%m-%d")
+    hora = request.form.get("hora", "") or ahora_guardado.strftime("%H:%M")
+    usuario = limpiar_texto(request.form.get("usuario", ""))
+    zona = request.form.get("zona", "")
+    item_id_raw = request.form.get("item_id", "")
+
+    try:
+        item_id = int(item_id_raw)
+    except Exception:
+        return jsonify({"ok": False, "error": "item_id inválido"}), 400
+
+    valor = limpiar_texto(request.form.get("valor", ""))
+    observacion = limpiar_texto(request.form.get("observacion", ""))
+
+    conn = conectar()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM items_mbo WHERE activo = 1 AND zona = ? AND id = ?", (zona, item_id))
+    item = cur.fetchone()
+
+    if not item:
+        conn.close()
+        return jsonify({"ok": False, "error": "Ítem no encontrado"}), 404
+
+    valor_convertido = ""
+
+    if valor and es_item_horas_operacion(item):
+        convertido = convertir_duracion_a_horas(valor)
+        if convertido is not None:
+            valor = convertido
+            valor_convertido = convertido
+
+    foto_file = request.files.get("foto")
+    nombre_foto = ""
+
+    if foto_file and foto_file.filename:
+        ext = os.path.splitext(foto_file.filename)[1].lower()
+        nombre_foto = secure_filename(f"MBO_{fecha}_{hora}_{zona}_{item_id}{ext}".replace(":", ""))
+        foto_file.save(os.path.join(UPLOAD_DIR, nombre_foto))
+
+    if not valor and not observacion and not nombre_foto:
+        conn.close()
+        return jsonify({"ok": True, "guardado": False, "mensaje": "Sin datos para guardar"})
+
+    fecha_registro = ahora_guardado.strftime("%Y-%m-%d %H:%M:%S")
+
+    accion, foto_final = guardar_o_actualizar_registro(
+        cur, item, fecha, hora, usuario, zona, valor, observacion, nombre_foto, fecha_registro
+    )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "ok": True,
+        "guardado": True,
+        "accion": accion,
+        "valor_convertido": valor_convertido,
+        "foto": foto_final,
+    })
+
+
+
 @app.route("/guardar_zona", methods=["POST"])
 def guardar_zona():
     ahora_guardado = datetime.now()
@@ -2321,31 +2576,9 @@ def guardar_zona():
         if not valor and not observacion and not nombre_foto:
             continue
 
-        cur.execute("""
-            INSERT INTO registros_mbo
-            (fecha, hora, usuario, zona, item_id, nivel, sistema, equipo, descripcion,
-             unidad, senal, seteos, referencia, valor, observacion, foto, fecha_registro, estado)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            fecha,
-            hora,
-            usuario,
-            zona,
-            item_id,
-            item["nivel"],
-            item["sistema"],
-            item["equipo"],
-            item["descripcion"],
-            item["unidad"],
-            item["senal"],
-            item["seteos"],
-            item["referencia"],
-            valor,
-            observacion,
-            nombre_foto,
-            fecha_registro,
-            "REGISTRADO",
-        ))
+        guardar_o_actualizar_registro(
+            cur, item, fecha, hora, usuario, zona, valor, observacion, nombre_foto, fecha_registro
+        )
         guardados += 1
 
     conn.commit()
