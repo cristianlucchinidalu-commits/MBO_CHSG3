@@ -52,6 +52,40 @@ def normalizar(valor):
     return texto
 
 
+def opciones_selector_valor(referencia):
+    """
+    Devuelve opciones para referencias operativas.
+    Si no reconoce una referencia especial, devuelve lista vacía y se usa input libre.
+    """
+    ref = normalizar(referencia)
+
+    if "OK" in ref and "NOK" in ref:
+        return [
+            {"value": "OK", "label": "OK"},
+            {"value": "NOK", "label": "NOK"},
+        ]
+
+    if "LOCAL" in ref and "REMOTO" in ref:
+        return [
+            {"value": "L", "label": "L"},
+            {"value": "R", "label": "R"},
+        ]
+
+    if "AUTOMATICO" in ref and "MANUAL" in ref:
+        return [
+            {"value": "A", "label": "A"},
+            {"value": "M", "label": "M"},
+        ]
+
+    if "CERRADO" in ref and "ABIERTO" in ref:
+        return [
+            {"value": "C", "label": "C"},
+            {"value": "A", "label": "A"},
+        ]
+
+    return []
+
+
 def buscar_excel_mbo():
     # Busca primero junto al app.py y luego en DATA_DIR.
     carpetas = []
@@ -764,6 +798,57 @@ HTML_INDEX = """
             font-weight:bold;
         }
 
+        .choice-group{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            align-items:center;
+            justify-content:center;
+            min-width:150px;
+        }
+
+        .choice-pill{
+            display:inline-flex;
+            margin:0;
+            cursor:pointer;
+        }
+
+        .choice-pill input{
+            display:none;
+        }
+
+        .choice-pill span{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-width:58px;
+            padding:10px 12px;
+            border-radius:999px;
+            border:1px solid #c7d2fe;
+            background:#eef2ff;
+            color:#1e3a8a;
+            font-weight:bold;
+            font-size:14px;
+            transition:.15s ease;
+            user-select:none;
+        }
+
+        .choice-pill input:checked + span{
+            background:linear-gradient(135deg, #15803d, #2f8f46);
+            color:white;
+            border-color:#15803d;
+            box-shadow:0 4px 12px rgba(21,128,61,.22);
+        }
+
+        .choice-pill:hover span{
+            transform:translateY(-1px);
+            background:#dbeafe;
+        }
+
+        .choice-pill input:checked + span:hover{
+            background:linear-gradient(135deg, #15803d, #2f8f46);
+        }
+
         textarea.obs{
             min-width:160px;
             resize:vertical;
@@ -1034,6 +1119,18 @@ HTML_INDEX = """
                 padding:12px;
             }
 
+            .choice-group{
+                justify-content:flex-start;
+                min-width:0;
+                width:100%;
+            }
+
+            .choice-pill span{
+                min-width:56px;
+                padding:10px 13px;
+                font-size:14px;
+            }
+
             textarea.obs{
                 min-height:44px;
             }
@@ -1232,7 +1329,18 @@ HTML_INDEX = """
                         <td class="ref" data-label="REFERENCIA">{{ item['referencia'] or '' }}</td>
 
                         <td data-label="VALOR">
-                            <input class="valor campo-control" type="text" name="valor_{{ item['id'] }}" placeholder="Valor">
+                            {% if item['valor_opciones'] %}
+                                <div class="choice-group">
+                                    {% for op in item['valor_opciones'] %}
+                                        <label class="choice-pill">
+                                            <input class="campo-control valor-choice" type="radio" name="valor_{{ item['id'] }}" value="{{ op['value'] }}">
+                                            <span>{{ op['label'] }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <input class="valor campo-control" type="text" name="valor_{{ item['id'] }}" placeholder="Valor">
+                            {% endif %}
                         </td>
 
                         <td data-label="OBSERVACIÓN">
@@ -1274,7 +1382,9 @@ document.addEventListener("DOMContentLoaded", function(){
         const obs = row.querySelector("textarea.obs");
         const foto = row.querySelector("input.foto");
 
-        const tieneValor = valor && valor.value.trim() !== "";
+        const valorChoice = row.querySelector("input.valor-choice:checked");
+
+        const tieneValor = (valor && valor.value.trim() !== "") || !!valorChoice;
         const tieneObs = obs && obs.value.trim() !== "";
         const tieneFoto = foto && foto.files && foto.files.length > 0;
 
@@ -1695,7 +1805,13 @@ def index():
         WHERE activo = 1 AND zona = ?
         ORDER BY id
     """, (zona,))
-    items = cur.fetchall()
+    items_raw = cur.fetchall()
+
+    items = []
+    for item in items_raw:
+        item_dict = dict(item)
+        item_dict["valor_opciones"] = opciones_selector_valor(item_dict.get("referencia", ""))
+        items.append(item_dict)
 
     niveles = []
     niveles_vistos = set()
