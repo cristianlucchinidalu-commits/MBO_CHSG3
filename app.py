@@ -1939,14 +1939,26 @@ document.addEventListener("DOMContentLoaded", function(){
 
     document.querySelectorAll(".campo-control").forEach(campo => {
         campo.addEventListener("input", function(){
+            // Mientras el operador escribe NO se guarda todavía.
+            // Esto evita que la fila se oculte al primer número cuando está activo "Solo pendientes".
             actualizarCompletados();
+        });
 
-            const row = campo.closest(".item-row");
-            if(campo.type !== "file"){
-                programarAutosave(row, false);
+        campo.addEventListener("keydown", function(e){
+            // Para VALOR y OBSERVACIÓN: guardar cuando se presiona Enter.
+            if(e.key === "Enter" && campo.type !== "file"){
+                e.preventDefault();
+
+                const row = campo.closest(".item-row");
+
+                if(campo.classList.contains("valor")){
+                    aplicarConversionHoras(campo);
+                    actualizarCompletados();
+                }
+
+                programarAutosave(row, true);
+                campo.blur();
             }
-
-            aplicarFiltro();
         });
 
         campo.addEventListener("blur", function(){
@@ -1957,8 +1969,8 @@ document.addEventListener("DOMContentLoaded", function(){
                 actualizarCompletados();
             }
 
+            // Guardar cuando el operador termina y sale del campo.
             programarAutosave(row, true);
-            aplicarFiltro();
         });
 
         campo.addEventListener("change", function(){
@@ -1983,10 +1995,13 @@ document.addEventListener("DOMContentLoaded", function(){
                 if(nombre){
                     nombre.textContent = (campo.files && campo.files[0]) ? "Foto cargada" : "Sin foto";
                 }
-            }
 
-            programarAutosave(row, true);
-            aplicarFiltro();
+                // La foto sí se guarda de inmediato cuando se selecciona.
+                programarAutosave(row, true);
+            }else if(campo.classList.contains("valor-choice")){
+                // Los selectores OK/NOK, L/R, A/M, C/A, F/E sí se guardan de inmediato.
+                programarAutosave(row, true);
+            }
         });
     });
 
