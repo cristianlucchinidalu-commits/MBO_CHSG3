@@ -1392,6 +1392,34 @@ HTML_INDEX = """
                 font-size:14px;
             }
 
+            .group-inner{
+                align-items:flex-start;
+                flex-direction:column;
+                gap:8px;
+            }
+
+            .group-count{
+                font-size:12px;
+                padding:4px 10px;
+            }
+
+            .desc-topline{
+                flex-direction:column;
+                gap:6px;
+            }
+
+            .estado-pill{
+                width:max-content;
+            }
+
+            .foto-pill{
+                width:100%;
+            }
+
+            .foto-name{
+                max-width:100%;
+            }
+
             textarea.obs{
                 min-height:44px;
             }
@@ -1552,10 +1580,15 @@ HTML_INDEX = """
                     {% if grupo_actual != ns.grupo %}
                         <tr class="grupo group-row" data-nivel="{{ item['nivel'] or '' }}">
                             <td colspan="10">
-                                {{ item['nivel'] or '-' }} / {{ item['sistema'] or '-' }}
-                                {% if item['equipo'] %}
-                                    / {{ item['equipo'] }}
-                                {% endif %}
+                                <div class="group-inner">
+                                    <span class="group-title">
+                                        {{ item['nivel'] or '-' }} / {{ item['sistema'] or '-' }}
+                                        {% if item['equipo'] %}
+                                            / {{ item['equipo'] }}
+                                        {% endif %}
+                                    </span>
+                                    <span class="group-count">0 / 0 llenados</span>
+                                </div>
                             </td>
                         </tr>
                         {% set ns.grupo = grupo_actual %}
@@ -1580,7 +1613,10 @@ HTML_INDEX = """
                         </td>
 
                         <td class="desc desc-cell" data-label="DESCRIPCIÓN">
-                            <div class="desc-main">{{ item['descripcion'] }}</div>
+                            <div class="desc-topline">
+                                <div class="desc-main">{{ item['descripcion'] }}</div>
+                                <span class="estado-pill estado-pendiente">Pendiente</span>
+                            </div>
                             {% if item['referencia'] %}
                                 <div class="ref-inline">REF: {{ item['referencia'] }}</div>
                             {% endif %}
@@ -1612,7 +1648,11 @@ HTML_INDEX = """
                         </td>
 
                         <td data-label="FOTO">
-                            <input class="foto campo-control" type="file" name="foto_{{ item['id'] }}" accept="image/*" capture="environment">
+                            <label class="foto-pill">
+                                <input class="foto campo-control" type="file" name="foto_{{ item['id'] }}" accept="image/*" capture="environment">
+                                <span>📷 Foto</span>
+                            </label>
+                            <div class="foto-name">Sin foto</div>
                             <img class="preview" alt="Vista previa">
                         </td>
                     </tr>
@@ -1700,7 +1740,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
         if(!/[DHMS]/.test(raw)) return null;
 
-        const patron = /^(?:(\d+(?:\.\d+)?)D)?(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?$/;
+        const patron = /^(?:(\\d+(?:\\.\\d+)?)D)?(?:(\\d+(?:\\.\\d+)?)H)?(?:(\\d+(?:\\.\\d+)?)M)?(?:(\\d+(?:\\.\\d+)?)S)?$/;
         const m = raw.match(patron);
         if(!m) return null;
 
@@ -1739,12 +1779,42 @@ document.addEventListener("DOMContentLoaded", function(){
         return tieneValor || tieneObs || tieneFoto;
     }
 
+    function actualizarConteoGrupos(){
+        groups.forEach(group => {
+            let next = group.nextElementSibling;
+            let total = 0;
+            let completos = 0;
+
+            while(next && !next.classList.contains("group-row")){
+                if(next.classList.contains("item-row")){
+                    total++;
+                    if(rowTieneDato(next)) completos++;
+                }
+                next = next.nextElementSibling;
+            }
+
+            const badge = group.querySelector(".group-count");
+            if(badge){
+                badge.textContent = completos + " / " + total + " llenados";
+                badge.classList.toggle("complete", total > 0 && completos === total);
+            }
+        });
+    }
+
     function actualizarCompletados(){
         let completos = 0;
 
         rows.forEach(row => {
             const lleno = rowTieneDato(row);
             row.classList.toggle("row-complete", lleno);
+
+            const estado = row.querySelector(".estado-pill");
+            if(estado){
+                estado.textContent = lleno ? "Listo" : "Pendiente";
+                estado.classList.toggle("estado-listo", lleno);
+                estado.classList.toggle("estado-pendiente", !lleno);
+            }
+
             if(lleno) completos++;
         });
 
@@ -1758,6 +1828,8 @@ document.addEventListener("DOMContentLoaded", function(){
         if(progressText){
             progressText.textContent = completos + " / " + rows.length + " llenados";
         }
+
+        actualizarConteoGrupos();
     }
 
     function actualizarVisibilidadGrupos(){
@@ -1793,6 +1865,7 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
         actualizarVisibilidadGrupos();
+        actualizarConteoGrupos();
     }
 
     document.querySelectorAll(".campo-control").forEach(campo => {
@@ -1818,13 +1891,34 @@ document.addEventListener("DOMContentLoaded", function(){
             aplicarFiltro();
 
             if(campo.type === "file"){
-                const img = campo.parentElement.querySelector(".preview");
+                const celda = campo.closest("td");
+                const img = celda ? celda.querySelector(".preview") : null;
+                const nombre = celda ? celda.querySelector(".foto-name") : null;
 
                 if(img && campo.files && campo.files[0]){
                     img.src = URL.createObjectURL(campo.files[0]);
                     img.style.display = "block";
                 }
+
+                if(nombre){
+                    nombre.textContent = (campo.files && campo.files[0]) ? "Foto cargada" : "Sin foto";
+                }
             }
+        });
+    });
+
+    rows.forEach(row => {
+        row.addEventListener("focusin", function(){
+            rows.forEach(r => r.classList.remove("row-active"));
+            row.classList.add("row-active");
+        });
+
+        row.addEventListener("focusout", function(){
+            setTimeout(() => {
+                if(!row.contains(document.activeElement)){
+                    row.classList.remove("row-active");
+                }
+            }, 80);
         });
     });
 
