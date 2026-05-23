@@ -98,7 +98,6 @@ def opciones_selector_valor(referencia):
         ]
 
     # SI / NO
-    # Cubre referencias como: SI/NO, SI / NO, SÍ / NO.
     if ("SI" in ref and "NO" in ref) or ("S/" in ref and "N/" in ref):
         return [
             {"value": "SI", "label": "SI"},
@@ -113,7 +112,6 @@ def opciones_selector_valor(referencia):
         ]
 
     # A: Auto / Automático  M: Manual
-    # Cubre: A: Auto M: Manual, A: Automatico M: Manual, Automático/Manual.
     if (("AUTO" in ref or "AUTOMATICO" in ref) and "MANUAL" in ref):
         return [
             {"value": "A", "label": "A"},
@@ -125,6 +123,13 @@ def opciones_selector_valor(referencia):
         return [
             {"value": "C", "label": "C"},
             {"value": "A", "label": "A"},
+        ]
+
+    # F: Flotante E: Equilibrado
+    if "FLOTANTE" in ref and "EQUILIBRADO" in ref:
+        return [
+            {"value": "F", "label": "F"},
+            {"value": "E", "label": "E"},
         ]
 
     return []
