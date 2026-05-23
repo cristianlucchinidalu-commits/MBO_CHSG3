@@ -1326,15 +1326,15 @@ HTML_INDEX = """
             <div class="grid">
                 <div>
                     <label>Fecha</label>
-                    <input type="date" name="fecha" value="{{ fecha_hoy }}" required>
+                    <input type="date" name="fecha" id="fechaRegistro" value="{{ fecha_hoy }}" required>
                 </div>
                 <div>
                     <label>Hora</label>
-                    <input type="time" name="hora" value="{{ hora_actual }}" required>
+                    <input type="time" name="hora" id="horaRegistro" value="{{ hora_actual }}" required>
                 </div>
                 <div>
                     <label>Operador</label>
-                    <input type="text" name="usuario" placeholder="Nombre del operador" required>
+                    <input type="text" name="usuario" id="operadorRegistro" value="{{ ultimo_operador }}" placeholder="Nombre del operador" required autocomplete="name">
                 </div>
                 <div>
                     <label>Hoja seleccionada</label>
@@ -1480,6 +1480,58 @@ document.addEventListener("DOMContentLoaded", function(){
 
     let filtroModo = "todos";
     let filtroNivel = "";
+
+    const formMbo = document.querySelector("form");
+    const fechaRegistro = document.getElementById("fechaRegistro");
+    const horaRegistro = document.getElementById("horaRegistro");
+    const operadorRegistro = document.getElementById("operadorRegistro");
+
+    function pad2(n){
+        return String(n).padStart(2, "0");
+    }
+
+    function aplicarFechaHoraActual(){
+        const ahora = new Date();
+
+        if(fechaRegistro){
+            const yyyy = ahora.getFullYear();
+            const mm = pad2(ahora.getMonth() + 1);
+            const dd = pad2(ahora.getDate());
+            fechaRegistro.value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        if(horaRegistro){
+            horaRegistro.value = `${pad2(ahora.getHours())}:${pad2(ahora.getMinutes())}`;
+        }
+    }
+
+    // Fecha y hora por defecto del momento real de registro.
+    aplicarFechaHoraActual();
+    setInterval(aplicarFechaHoraActual, 30000);
+
+    // Recordar el último operador en este celular/PC.
+    if(operadorRegistro){
+        const operadorGuardado = localStorage.getItem("mbo_ultimo_operador") || "";
+        if(!operadorRegistro.value.trim() && operadorGuardado){
+            operadorRegistro.value = operadorGuardado;
+        }
+
+        operadorRegistro.addEventListener("input", function(){
+            localStorage.setItem("mbo_ultimo_operador", operadorRegistro.value.trim());
+        });
+    }
+
+    if(formMbo){
+        formMbo.addEventListener("submit", function(){
+            // Justo antes de guardar se toma la hora actual del celular/PC.
+            aplicarFechaHoraActual();
+
+            if(operadorRegistro && operadorRegistro.value.trim()){
+                localStorage.setItem("mbo_ultimo_operador", operadorRegistro.value.trim());
+            }
+        });
+    }
+
 
     function convertirDuracionHoras(texto){
         let raw = (texto || "").trim().toUpperCase().replace(",", ".");
@@ -1970,6 +2022,16 @@ def index():
             niveles.append(nivel)
             niveles_vistos.add(nivel)
 
+    cur.execute("""
+        SELECT usuario
+        FROM registros_mbo
+        WHERE usuario IS NOT NULL AND TRIM(usuario) <> ''
+        ORDER BY id DESC
+        LIMIT 1
+    """)
+    fila_operador = cur.fetchone()
+    ultimo_operador = fila_operador["usuario"] if fila_operador else ""
+
     conn.close()
 
     ahora = datetime.now()
@@ -1982,13 +2044,15 @@ def index():
         total_items=total_items,
         fecha_hoy=ahora.strftime("%Y-%m-%d"),
         hora_actual=ahora.strftime("%H:%M"),
+        ultimo_operador=ultimo_operador,
     )
 
 
 @app.route("/guardar_zona", methods=["POST"])
 def guardar_zona():
-    fecha = request.form.get("fecha", "")
-    hora = request.form.get("hora", "")
+    ahora_guardado = datetime.now()
+    fecha = request.form.get("fecha", "") or ahora_guardado.strftime("%Y-%m-%d")
+    hora = request.form.get("hora", "") or ahora_guardado.strftime("%H:%M")
     usuario = limpiar_texto(request.form.get("usuario", ""))
     zona = request.form.get("zona", "")
 
