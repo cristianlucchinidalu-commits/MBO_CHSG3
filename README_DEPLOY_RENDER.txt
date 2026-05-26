@@ -1,16 +1,8 @@
-# Corrección Render 500
+MBO_CHSG3 corregido.
 
-Este app.py corrige el error 500 en Render/Gunicorn.
+1) Reemplaza estos archivos en tu repositorio.
+2) En GitHub Desktop: Commit to main y Push origin.
+3) En Render: Manual Deploy -> Clear build cache & deploy.
 
-Causa:
-Gunicorn importa app.py como módulo y no ejecuta el bloque:
-if __name__ == "__main__"
-
-Solución:
-La inicialización crear_bd() y cargar_items_desde_excel() ahora se ejecuta al importar app.py.
-
-Pasos:
-1. Reemplazar app.py en GitHub.
-2. Hacer commit.
-3. En Render usar Manual Deploy -> Deploy latest commit.
-4. Mantener DATA_DIR=/tmp si no tienes disco persistente.
+Start Command recomendado:
+gunicorn app:app --workers 1 --timeout 180 --bind 0.0.0.0:$PORT

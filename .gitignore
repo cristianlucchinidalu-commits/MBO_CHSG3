@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
-mbo.db
+data/
 uploads/
 exports/
-.env
+mbo.db
