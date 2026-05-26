@@ -826,6 +826,13 @@ HTML_INDEX = """
             background:#dbeafe;
         }
 
+        .toolbar .mini-btn.active{
+            background:linear-gradient(135deg, #173b70, #2457a6);
+            color:#ffffff;
+            border-color:#173b70;
+            box-shadow:0 4px 12px rgba(30,64,175,.22);
+        }
+
         .progress-card{
             display:grid;
             grid-template-columns:1fr auto;
@@ -2062,7 +2069,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const progressText = document.getElementById("progressText");
     const nivelChips = Array.from(document.querySelectorAll(".nivel-chip"));
 
-    let filtroModo = "pendientes";
+    let filtroModo = "todos";
     let filtroNivel = "";
 
     const formMbo = document.querySelector("form");
@@ -2458,8 +2465,14 @@ document.addEventListener("DOMContentLoaded", function(){
         chip.addEventListener("click", function(){
             filtroNivel = chip.dataset.nivel || "";
 
+            // Al elegir NIVEL 1 / NIVEL 2 / NIVEL 3 / NIVEL 4,
+            // el aplicativo debe mostrar TODOS los ítems de ese nivel.
+            // Si no se hace esto, queda mezclado con "Solo pendientes".
+            filtroModo = "todos";
+
             nivelChips.forEach(c => c.classList.remove("active"));
             chip.classList.add("active");
+            actualizarBotonesModo();
 
             aplicarFiltro();
         });
@@ -2469,9 +2482,20 @@ document.addEventListener("DOMContentLoaded", function(){
     const btnPendientes = document.getElementById("btnPendientes");
     const btnLlenados = document.getElementById("btnLlenados");
 
+    function actualizarBotonesModo(){
+        [btnTodos, btnPendientes, btnLlenados].forEach(btn => {
+            if(btn) btn.classList.remove("active");
+        });
+
+        if(filtroModo === "todos" && btnTodos) btnTodos.classList.add("active");
+        if(filtroModo === "pendientes" && btnPendientes) btnPendientes.classList.add("active");
+        if(filtroModo === "llenados" && btnLlenados) btnLlenados.classList.add("active");
+    }
+
     if(btnTodos){
         btnTodos.addEventListener("click", function(){
             filtroModo = "todos";
+            actualizarBotonesModo();
             filtroNivel = "";
             if(searchInput) searchInput.value = "";
 
@@ -2489,6 +2513,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if(btnPendientes){
         btnPendientes.addEventListener("click", function(){
             filtroModo = "pendientes";
+            actualizarBotonesModo();
             aplicarFiltro();
         });
     }
@@ -2496,6 +2521,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if(btnLlenados){
         btnLlenados.addEventListener("click", function(){
             filtroModo = "llenados";
+            actualizarBotonesModo();
             aplicarFiltro();
         });
     }
@@ -2518,6 +2544,7 @@ document.addEventListener("DOMContentLoaded", function(){
         });
     });
 
+    actualizarBotonesModo();
     actualizarCompletados();
     aplicarFiltro();
 });
