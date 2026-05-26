@@ -958,11 +958,6 @@ HTML_INDEX = """
             background:linear-gradient(135deg, #15803d, #2f8f46);
         }
 
-        textarea.obs{
-            min-width:160px;
-            resize:vertical;
-        }
-
         input.foto{
             min-width:145px;
             font-size:12px;
@@ -1010,20 +1005,16 @@ HTML_INDEX = """
         #tablaMBO th:nth-child(1),
         #tablaMBO th:nth-child(2),
         #tablaMBO th:nth-child(3),
-        #tablaMBO th:nth-child(7),
         #tablaMBO tr.item-row td:nth-child(1),
         #tablaMBO tr.item-row td:nth-child(2),
-        #tablaMBO tr.item-row td:nth-child(3),
-        #tablaMBO tr.item-row td:nth-child(7){
+        #tablaMBO tr.item-row td:nth-child(3){
             display:none !important;
         }
 
-        #tablaMBO th:nth-child(4){ width:36%; }
-        #tablaMBO th:nth-child(5){ width:7%; }
-        #tablaMBO th:nth-child(6){ width:9%; }
-        #tablaMBO th:nth-child(8){ width:14%; }
-        #tablaMBO th:nth-child(9){ width:20%; }
-        #tablaMBO th:nth-child(10){ width:14%; }
+        #tablaMBO th:nth-child(4){ width:48%; }
+        #tablaMBO th:nth-child(5){ width:8%; }
+        #tablaMBO th:nth-child(6){ width:22%; }
+        #tablaMBO th:nth-child(7){ width:22%; }
 
         #tablaMBO th{
             background:#f8fafc;
@@ -1103,17 +1094,12 @@ HTML_INDEX = """
             padding:3px 9px;
         }
 
-        .mobile-meta{
-            display:none;
-        }
-
         #tablaMBO .center{
             font-size:17px;
             font-weight:700;
         }
 
-        #tablaMBO input.valor,
-        #tablaMBO textarea.obs{
+        #tablaMBO input.valor{
             width:100%;
             min-width:0;
             border-radius:8px;
@@ -1124,11 +1110,6 @@ HTML_INDEX = """
         #tablaMBO input.valor{
             min-height:42px;
             text-align:center;
-        }
-
-        #tablaMBO textarea.obs{
-            min-height:42px;
-            resize:vertical;
         }
 
         #tablaMBO .choice-group{
@@ -1249,13 +1230,9 @@ HTML_INDEX = """
                 width:100%;
             }
 
+            #tablaMBO tr.item-row td:nth-child(1),
             #tablaMBO tr.item-row td:nth-child(2),
-            #tablaMBO tr.item-row td:nth-child(3),
-            #tablaMBO tr.item-row td:nth-child(5),
-            #tablaMBO tr.item-row td:nth-child(6),
-            #tablaMBO tr.item-row td:nth-child(7),
-            #tablaMBO tr.item-row td:nth-child(9),
-            #tablaMBO tr.item-row td:nth-child(10){
+            #tablaMBO tr.item-row td:nth-child(3){
                 display:none !important;
             }
 
@@ -1263,257 +1240,138 @@ HTML_INDEX = """
                 display:none;
             }
 
-            /* MODO CELULAR TIPO LISTA AZUL */
-            body{
-                background:radial-gradient(circle at top, #0f3f86 0%, #071f49 35%, #020b24 100%);
-                color:#e5eefc;
-            }
-
-            .wrap{
-                padding:8px;
-                max-width:100%;
-            }
-
-            .top,
-            .panel{
-                background:rgba(7, 24, 52, .82);
-                color:#e5eefc;
-                border:1px solid rgba(96,165,250,.22);
-                box-shadow:0 12px 28px rgba(2,8,23,.30);
-            }
-
-            .top h2,
-            .top p,
-            .badge,
-            label,
-            .small,
-            .nivel-ayuda,
-            .progress-text{
-                color:#e5eefc;
-            }
-
-            input,
-            select,
-            textarea{
-                background:rgba(255,255,255,.08);
-                color:#f8fafc;
-                border-color:rgba(148,163,184,.35);
-            }
-
-            input::placeholder,
-            textarea::placeholder{
-                color:#cbd5e1;
-            }
-
-            .nivel-chip,
-            .toolbar .mini-btn{
-                background:rgba(30,64,175,.22);
-                color:#e5eefc;
-                border-color:rgba(96,165,250,.35);
-            }
-
-            .nivel-chip.active{
-                background:linear-gradient(135deg, #2563eb, #1d4ed8);
-                color:#fff;
-                border-color:#60a5fa;
-            }
-
-            .progress-card{
-                background:rgba(30,64,175,.20);
-                border:1px solid rgba(96,165,250,.25);
-            }
-
-            .progress-bar{
-                background:rgba(255,255,255,.12);
-                border-color:rgba(148,163,184,.25);
-            }
-
-            .tablebox{
-                max-height:none;
-                overflow:visible;
-                background:transparent;
-                border:0;
-                box-shadow:none;
-                border-radius:0;
-            }
-
-            table,
-            thead,
-            tbody,
-            th,
-            td,
-            tr{
-                display:block;
-                width:100%;
-            }
-
             .grupo{
-                margin:12px 0 10px;
+                margin:12px 0 8px;
             }
 
             .grupo td{
                 position:relative;
                 top:auto;
-                border-radius:18px;
+                border-radius:12px;
                 margin:0;
-                padding:16px 18px;
+                padding:12px 14px;
                 font-size:15px;
                 line-height:1.35;
-                border:1px solid rgba(96,165,250,.40);
-                box-shadow:0 10px 22px rgba(2,8,23,.28);
-                background:linear-gradient(135deg, rgba(13,71,161,.92), rgba(8,47,116,.92)) !important;
-                color:#f8fafc;
-            }
-
-            .group-title{
-                font-size:18px;
-                font-weight:800;
-                letter-spacing:.02em;
+                border:1px solid #111827;
+                box-shadow:0 5px 14px rgba(15,23,42,.10);
+                background:#48b7dc !important;
+                color:#020617;
             }
 
             tr.item-row{
-                display:grid;
-                grid-template-columns:minmax(0, 1fr) 112px;
-                grid-template-areas:
-                    "head value"
-                    "desc value";
-                column-gap:8px;
-                row-gap:0;
-                margin:10px 0 16px;
-                border-radius:20px;
+                background:white;
+                margin:10px 0 14px;
+                border-radius:18px;
+                box-shadow:0 8px 22px rgba(15,23,42,.10);
                 overflow:hidden;
-                border:1px solid rgba(96,165,250,.22);
-                box-shadow:0 14px 28px rgba(2,8,23,.30);
-                background:linear-gradient(135deg, rgba(7,31,68,.98), rgba(3,18,43,.98));
+                border:1px solid var(--borde);
             }
 
             tr.item-row td{
                 border:0;
-                background:transparent !important;
-                padding:0;
+                border-bottom:1px solid #eef2f7;
+                background:white !important;
+                padding:9px 12px;
+                display:grid;
+                grid-template-columns:96px minmax(0, 1fr);
+                column-gap:10px;
+                align-items:start;
+                font-size:13px;
+                line-height:1.35;
                 text-align:left !important;
-                color:#e5eefc;
-            }
-
-            tr.item-row.row-complete{
-                border-color:rgba(34,197,94,.45);
+                overflow-wrap:anywhere;
+                word-break:normal;
             }
 
             tr.item-row.row-complete td{
-                background:transparent !important;
+                background:var(--verde2) !important;
             }
 
             tr.item-row td::before{
-                display:none !important;
+                content:attr(data-label);
+                font-weight:bold;
+                color:#334155;
+                font-size:12px;
+                line-height:1.25;
+                padding-top:2px;
             }
 
             tr.item-row td.mobile-head{
-                grid-area:head;
-                display:flex !important;
+                display:flex;
+                justify-content:space-between;
                 align-items:center;
-                gap:0;
-                padding:16px 14px 6px 18px;
-                border:0;
+                gap:10px;
+                background:#f8fbff !important;
+                border-bottom:1px solid #dbe8f7;
             }
 
-            .mobile-num{
-                display:none !important;
+            tr.item-row.row-complete td.mobile-head{
+                background:#e0f6e7 !important;
+            }
+
+            tr.item-row td.mobile-head::before{
+                content:"";
+                display:none;
             }
 
             .mobile-title{
-                display:block;
-                font-weight:800;
-                color:#f8fafc;
-                font-size:17px;
-                line-height:1.22;
-                text-transform:uppercase;
+                font-weight:bold;
+                color:#111827;
+                font-size:14px;
+                line-height:1.35;
+            }
+
+            .mobile-num{
+                flex:0 0 auto;
             }
 
             .desc-cell{
-                grid-area:desc;
-                display:block !important;
-                padding:0 14px 16px 18px !important;
-                border:0;
+                display:grid !important;
+                grid-template-columns:96px minmax(0, 1fr);
             }
 
-            .desc-cell::before,
-            .desc-main,
-            .ref-inline{
-                display:none !important;
+            .desc-cell::before{
+                content:"DESCRIPCIÓN";
+                display:block;
+                margin-bottom:5px;
+                font-size:11px;
+                letter-spacing:.04em;
+                color:#64748b;
             }
 
-            .mobile-meta{
-                display:flex;
-                flex-wrap:wrap;
-                gap:0;
-                color:#dbeafe;
-                font-size:12px;
-                font-weight:700;
-                line-height:1.6;
-            }
-
-            .mobile-meta span:not(:last-child)::after{
-                content:" · ";
-                color:#93c5fd;
-                margin:0 7px;
-            }
-
-            .valor-cell{
-                grid-area:value;
-                display:flex !important;
-                align-items:center;
-                justify-content:center;
-                padding:14px 16px 14px 0 !important;
-                border:0;
-            }
-
-            .valor-cell input.valor{
-                width:100%;
+            .desc{
                 min-width:0;
-                min-height:68px;
-                padding:12px 8px;
-                text-align:center;
-                font-size:17px;
-                font-weight:800;
-                color:#fff;
-                background:linear-gradient(135deg, #1e6d92, #156082);
-                border:2px solid rgba(8,47,73,.85);
-                border-radius:14px;
-                box-shadow:none;
+                font-size:14px;
             }
 
-            .valor-cell input.valor::placeholder{
-                color:#eff6ff;
-                opacity:1;
-                text-transform:lowercase;
+            .sis,
+            .ref,
+            input.valor,
+            input.foto{
+                min-width:0;
+                width:100%;
+            }
+
+            .ref{
+                white-space:normal;
+            }
+
+            input.valor,
+            input.foto{
+                font-size:15px;
+                padding:12px;
             }
 
             .choice-group{
-                justify-content:flex-end;
+                justify-content:flex-start;
                 min-width:0;
                 width:100%;
-                gap:8px;
             }
 
             .choice-pill span{
-                min-width:54px;
-                padding:10px 12px;
+                min-width:56px;
+                padding:10px 13px;
                 font-size:14px;
-                border-radius:14px;
-                background:rgba(37,99,235,.18);
-                border:1px solid rgba(96,165,250,.30);
-                color:#eff6ff;
-            }
-
-            .choice-pill input:checked + span{
-                background:linear-gradient(135deg, #2563eb, #3b82f6);
-                border-color:#93c5fd;
-                color:#fff;
-            }
-
-            .obs-cell,
-            .foto-cell{
-                display:none !important;
             }
 
             .group-inner{
@@ -1522,21 +1380,29 @@ HTML_INDEX = """
                 gap:8px;
             }
 
+            .foto-pill{
+                width:100%;
+            }
+
+            .foto-name{
+                max-width:100%;
+            }
+
+            .preview{
+                width:70px;
+                height:70px;
+            }
+
             .sticky{
                 position:sticky;
                 bottom:0;
-                padding:10px 0 6px;
-                background:linear-gradient(180deg, rgba(2,11,24,0), rgba(2,11,24,.90) 32%, rgba(2,11,24,.98) 100%);
+                padding:8px 0;
+                background:rgba(238,244,251,.96);
             }
 
             .save{
                 font-size:16px;
-                min-height:58px;
-                border-radius:18px;
-                background:linear-gradient(135deg, #16a34a, #15803d);
-                color:#fff;
-                border:1px solid rgba(187,247,208,.30);
-                box-shadow:0 10px 22px rgba(21,128,61,.35);
+                min-height:54px;
             }
         }
     </style>
@@ -1661,10 +1527,7 @@ HTML_INDEX = """
                         <th>SISTEMA / EQUIPO</th>
                         <th>DESCRIPCIÓN</th>
                         <th>UNIDAD</th>
-                        <th>SEÑAL</th>
-                        <th>REFERENCIA</th>
                         <th>VALOR</th>
-                        <th>OBSERVACIÓN</th>
                         <th>FOTO</th>
                     </tr>
                 </thead>
@@ -1677,7 +1540,7 @@ HTML_INDEX = """
 
                     {% if grupo_actual != ns.grupo %}
                         <tr class="grupo group-row" data-nivel="{{ item['nivel'] or '' }}">
-                            <td colspan="10">
+                            <td colspan="7">
                                 <div class="group-inner">
                                     <span class="group-title">
                                         {{ item['nivel'] or '-' }} / {{ item['sistema'] or '-' }}
@@ -1697,6 +1560,7 @@ HTML_INDEX = """
                         data-search="{{ (item['nivel'] ~ ' ' ~ item['sistema'] ~ ' ' ~ item['equipo'] ~ ' ' ~ item['descripcion'] ~ ' ' ~ item['unidad'] ~ ' ' ~ item['senal'] ~ ' ' ~ item['referencia'])|lower }}">
 
                         <td class="mobile-head" data-label="N°">
+                            <span class="pill mobile-num">{{ loop.index }}</span>
                             <span class="mobile-title">{{ item['descripcion'] }}</span>
                         </td>
 
@@ -1711,25 +1575,18 @@ HTML_INDEX = """
 
                         <td class="desc desc-cell" data-label="DESCRIPCIÓN">
                             <div class="desc-main">{{ item['descripcion'] }}</div>
-
-                            <div class="mobile-meta">
-                                {% if item['referencia'] %}<span>REF: {{ item['referencia'] }}</span>{% endif %}
-                                {% if item['senal'] %}<span>SEÑAL: {{ item['senal'] }}</span>{% endif %}
-                                {% if item['unidad'] %}<span>UNIDAD: {{ item['unidad'] }}</span>{% endif %}
-                            </div>
-
-                            {% if item['referencia'] %}
-                                <div class="ref-inline">REF: {{ item['referencia'] }}</div>
+                            {% if item['referencia'] or item['senal'] %}
+                                <div class="ref-inline">
+                                    {% if item['referencia'] %}REF: {{ item['referencia'] }}{% endif %}
+                                    {% if item['referencia'] and item['senal'] %} | {% endif %}
+                                    {% if item['senal'] %}SEÑAL: {{ item['senal'] }}{% endif %}
+                                </div>
                             {% endif %}
                         </td>
 
                         <td class="center" data-label="UNIDAD">{{ item['unidad'] or '' }}</td>
 
-                        <td class="center" data-label="SEÑAL">{{ item['senal'] or '' }}</td>
-
-                        <td class="ref" data-label="REFERENCIA">{{ item['referencia'] or '' }}</td>
-
-                        <td class="valor-cell" data-label="VALOR">
+                        <td data-label="VALOR">
                             {% if item['valor_opciones'] %}
                                 <div class="choice-group">
                                     {% for op in item['valor_opciones'] %}
@@ -1744,11 +1601,7 @@ HTML_INDEX = """
                             {% endif %}
                         </td>
 
-                        <td class="obs-cell" data-label="OBSERVACIÓN">
-                            <textarea class="obs campo-control" name="obs_{{ item['id'] }}" rows="1" placeholder="Observación"></textarea>
-                        </td>
-
-                        <td class="foto-cell" data-label="FOTO">
+                        <td data-label="FOTO">
                             <label class="foto-pill">
                                 <input class="foto campo-control" type="file" name="foto_{{ item['id'] }}" accept="image/*" capture="environment">
                                 <span>📷 Foto</span>
@@ -1930,8 +1783,7 @@ document.addEventListener("DOMContentLoaded", function(){
         formData.append("usuario", operadorRegistro ? operadorRegistro.value.trim() : "");
         formData.append("valor", obtenerValorFila(row));
 
-        const obs = row.querySelector("textarea.obs");
-        formData.append("observacion", obs ? obs.value.trim() : "");
+        formData.append("observacion", "");
 
         const foto = row.querySelector("input.foto");
         if(foto && foto.files && foto.files[0]){
@@ -1990,16 +1842,14 @@ document.addEventListener("DOMContentLoaded", function(){
 
     function rowTieneDato(row){
         const valor = row.querySelector("input.valor");
-        const obs = row.querySelector("textarea.obs");
         const foto = row.querySelector("input.foto");
 
         const valorChoice = row.querySelector("input.valor-choice:checked");
 
         const tieneValor = (valor && valor.value.trim() !== "") || !!valorChoice;
-        const tieneObs = obs && obs.value.trim() !== "";
         const tieneFoto = (foto && foto.files && foto.files.length > 0) || row.dataset.fotoGuardada === "1";
 
-        return tieneValor || tieneObs || tieneFoto;
+        return tieneValor || tieneFoto;
     }
 
     function actualizarCompletados(){
@@ -2112,7 +1962,7 @@ document.addEventListener("DOMContentLoaded", function(){
                 actualizarCompletados();
             }
 
-            // No guardar si el foco pasó a OBSERVACIÓN o FOTO dentro de la misma fila.
+            // No guardar si el foco sigue dentro de la misma fila.
             guardarFilaSiSalio(row);
         });
 
@@ -2139,10 +1989,10 @@ document.addEventListener("DOMContentLoaded", function(){
                     nombre.textContent = (campo.files && campo.files[0]) ? "Foto cargada" : "Sin foto";
                 }
 
-                // Foto: guardar solo cuando salga de la fila, para permitir escribir observación.
+                // Foto: guardar solo cuando salga de la fila.
                 guardarFilaSiSalio(row);
             }else if(campo.classList.contains("valor-choice")){
-                // Selector: guardar solo cuando salga de la fila, para permitir escribir observación.
+                // Selector: guardar solo cuando salga de la fila.
                 guardarFilaSiSalio(row);
             }
         });
@@ -2308,7 +2158,7 @@ HTML_REGISTROS = """
                 <tr>
                     <th>ID</th><th>Fecha</th><th>Hora</th><th>Operador</th><th>Zona</th>
                     <th>Sistema</th><th>Equipo</th><th>Descripción</th><th>Valor</th>
-                    <th>Unidad</th><th>Obs.</th><th>Foto</th>
+                    <th>Unidad</th><th>Foto</th>
                 </tr>
             </thead>
             <tbody>
@@ -2324,7 +2174,6 @@ HTML_REGISTROS = """
                     <td>{{ r['descripcion'] }}</td>
                     <td>{{ r['valor'] }}</td>
                     <td>{{ r['unidad'] }}</td>
-                    <td>{{ r['observacion'] }}</td>
                     <td>
                         {% if r['foto'] %}
                             <a class="foto" href="{{ url_for('ver_foto', filename=r['foto']) }}" target="_blank">Ver</a>
