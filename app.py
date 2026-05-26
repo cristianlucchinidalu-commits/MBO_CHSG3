@@ -1263,89 +1263,88 @@ HTML_INDEX = """
                 display:none;
             }
 
+            /* MODO CELULAR TIPO LISTA AZUL */
             body{
-                background:radial-gradient(circle at top, #0f3f86 0%, #082a5d 28%, #041634 68%, #020b18 100%);
+                background:radial-gradient(circle at top, #0f3f86 0%, #071f49 35%, #020b24 100%);
                 color:#e5eefc;
             }
 
             .wrap{
-                width:min(100%, 720px);
-                padding:10px 12px 22px;
+                padding:8px;
+                max-width:100%;
             }
 
             .top,
-            .panel,
-            .card{
-                background:rgba(7, 24, 52, .80);
-                border:1px solid rgba(96, 165, 250, .22);
-                box-shadow:0 12px 30px rgba(2, 8, 23, .35);
+            .panel{
+                background:rgba(7, 24, 52, .82);
                 color:#e5eefc;
-                backdrop-filter:blur(6px);
+                border:1px solid rgba(96,165,250,.22);
+                box-shadow:0 12px 28px rgba(2,8,23,.30);
             }
 
             .top h2,
-            .panel label,
-            .card h3,
-            .card h4,
-            .progress-text,
-            .nivel-chip,
-            .toolbar .mini-btn,
+            .top p,
+            .badge,
+            label,
             .small,
             .nivel-ayuda,
-            .badge,
-            .menu a,
-            .menu .btn,
-            .top p{
+            .progress-text{
                 color:#e5eefc;
             }
 
-            .badge,
-            .toolbar .mini-btn,
-            .nivel-chip{
-                border-color:rgba(96, 165, 250, .35);
-                background:rgba(30, 64, 175, .18);
-            }
-
-            .toolbar .mini-btn:hover,
-            .nivel-chip:hover{
-                background:rgba(59, 130, 246, .28);
-            }
-
-            .nivel-chip.active,
-            .menu a.active,
-            .btn.active{
-                background:linear-gradient(135deg, #2563eb, #1d4ed8);
-                border-color:#60a5fa;
-            }
-
-            .panel input,
-            .panel select,
-            .panel textarea,
-            .toolbar input{
+            input,
+            select,
+            textarea{
                 background:rgba(255,255,255,.08);
                 color:#f8fafc;
-                border-color:rgba(148, 163, 184, .30);
+                border-color:rgba(148,163,184,.35);
             }
 
-            .panel input::placeholder,
-            .panel textarea::placeholder,
-            .toolbar input::placeholder{
+            input::placeholder,
+            textarea::placeholder{
                 color:#cbd5e1;
             }
 
-            .panel .small,
-            .nivel-ayuda{
-                color:#bfd3f7;
+            .nivel-chip,
+            .toolbar .mini-btn{
+                background:rgba(30,64,175,.22);
+                color:#e5eefc;
+                border-color:rgba(96,165,250,.35);
+            }
+
+            .nivel-chip.active{
+                background:linear-gradient(135deg, #2563eb, #1d4ed8);
+                color:#fff;
+                border-color:#60a5fa;
             }
 
             .progress-card{
-                background:rgba(30, 64, 175, .20);
-                border:1px solid rgba(96,165,250,.28);
+                background:rgba(30,64,175,.20);
+                border:1px solid rgba(96,165,250,.25);
             }
 
             .progress-bar{
                 background:rgba(255,255,255,.12);
                 border-color:rgba(148,163,184,.25);
+            }
+
+            .tablebox{
+                max-height:none;
+                overflow:visible;
+                background:transparent;
+                border:0;
+                box-shadow:none;
+                border-radius:0;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr{
+                display:block;
+                width:100%;
             }
 
             .grupo{
@@ -1357,10 +1356,10 @@ HTML_INDEX = """
                 top:auto;
                 border-radius:18px;
                 margin:0;
-                padding:18px 18px;
+                padding:16px 18px;
                 font-size:15px;
                 line-height:1.35;
-                border:1px solid rgba(96,165,250,.48);
+                border:1px solid rgba(96,165,250,.40);
                 box-shadow:0 10px 22px rgba(2,8,23,.28);
                 background:linear-gradient(135deg, rgba(13,71,161,.92), rgba(8,47,116,.92)) !important;
                 color:#f8fafc;
@@ -1374,11 +1373,12 @@ HTML_INDEX = """
 
             tr.item-row{
                 display:grid;
-                grid-template-columns:minmax(0, 1fr) 108px;
+                grid-template-columns:minmax(0, 1fr) 116px;
                 grid-template-areas:
                     "head value"
                     "desc value";
-                gap:0;
+                column-gap:8px;
+                row-gap:0;
                 margin:10px 0 16px;
                 border-radius:20px;
                 overflow:hidden;
@@ -1389,21 +1389,14 @@ HTML_INDEX = """
 
             tr.item-row td{
                 border:0;
-                border-bottom:0;
                 background:transparent !important;
-                padding:14px 16px;
-                display:block;
-                font-size:13px;
-                line-height:1.35;
+                padding:0;
                 text-align:left !important;
-                overflow-wrap:anywhere;
-                word-break:normal;
                 color:#e5eefc;
             }
 
             tr.item-row.row-complete{
                 border-color:rgba(34,197,94,.45);
-                box-shadow:0 14px 28px rgba(2,8,23,.30), 0 0 0 1px rgba(34,197,94,.12) inset;
             }
 
             tr.item-row.row-complete td{
@@ -1411,31 +1404,22 @@ HTML_INDEX = """
             }
 
             tr.item-row td::before{
-                display:none;
+                display:none !important;
             }
 
             tr.item-row td.mobile-head{
                 grid-area:head;
-                display:flex;
+                display:flex !important;
                 align-items:center;
                 gap:12px;
-                padding:16px 12px 4px 16px;
-                background:transparent !important;
-                border-bottom:0;
-            }
-
-            .mobile-title{
-                font-weight:800;
-                color:#f8fafc;
-                font-size:16px;
-                line-height:1.25;
-                text-transform:uppercase;
+                padding:16px 14px 6px;
+                border:0;
             }
 
             .mobile-num{
-                flex:0 0 auto;
                 width:38px;
                 height:38px;
+                flex:0 0 38px;
                 display:inline-flex;
                 align-items:center;
                 justify-content:center;
@@ -1445,14 +1429,23 @@ HTML_INDEX = """
                 font-weight:800;
                 background:linear-gradient(135deg, #3b82f6, #1d4ed8);
                 color:#fff;
-                border:1px solid rgba(191,219,254,.30);
-                box-shadow:0 8px 18px rgba(37,99,235,.32);
+                box-shadow:0 8px 16px rgba(37,99,235,.30);
+            }
+
+            .mobile-title{
+                display:block;
+                font-weight:800;
+                color:#f8fafc;
+                font-size:16px;
+                line-height:1.22;
+                text-transform:uppercase;
             }
 
             .desc-cell{
                 grid-area:desc;
                 display:block !important;
-                padding:2px 12px 16px 16px !important;
+                padding:0 14px 16px 64px !important;
+                border:0;
             }
 
             .desc-cell::before,
@@ -1464,7 +1457,7 @@ HTML_INDEX = """
             .mobile-meta{
                 display:flex;
                 flex-wrap:wrap;
-                gap:8px 0;
+                gap:0;
                 color:#dbeafe;
                 font-size:12px;
                 font-weight:700;
@@ -1474,34 +1467,31 @@ HTML_INDEX = """
             .mobile-meta span:not(:last-child)::after{
                 content:" · ";
                 color:#93c5fd;
-                margin-right:8px;
+                margin:0 7px;
             }
 
             .valor-cell{
                 grid-area:value;
                 display:flex !important;
                 align-items:center;
-                justify-content:flex-end;
-                padding:12px 14px 12px 4px !important;
-                border-bottom:0 !important;
-            }
-
-            .valor-cell .choice-group{
-                justify-content:flex-end;
+                justify-content:center;
+                padding:14px 12px 14px 0 !important;
+                border:0;
             }
 
             .valor-cell input.valor{
-                width:96px;
-                min-height:66px;
-                padding:14px 10px;
+                width:100%;
+                min-width:0;
+                min-height:70px;
+                padding:12px 8px;
                 text-align:center;
                 font-size:18px;
                 font-weight:800;
-                color:#f8fafc;
-                background:linear-gradient(135deg, #2563eb, #3b82f6);
+                color:#fff;
+                background:linear-gradient(135deg, #1d4ed8, #3b82f6);
                 border:1px solid rgba(191,219,254,.45);
-                border-radius:18px;
-                box-shadow:0 10px 22px rgba(37,99,235,.32);
+                border-radius:16px;
+                box-shadow:0 10px 20px rgba(37,99,235,.30);
             }
 
             .valor-cell input.valor::placeholder{
@@ -1511,19 +1501,19 @@ HTML_INDEX = """
             }
 
             .choice-group{
-                justify-content:flex-start;
+                justify-content:flex-end;
                 min-width:0;
                 width:100%;
                 gap:8px;
             }
 
             .choice-pill span{
-                min-width:58px;
-                padding:10px 14px;
+                min-width:54px;
+                padding:10px 12px;
                 font-size:14px;
                 border-radius:14px;
-                background:rgba(37,99,235,.16);
-                border:1px solid rgba(96,165,250,.25);
+                background:rgba(37,99,235,.18);
+                border:1px solid rgba(96,165,250,.30);
                 color:#eff6ff;
             }
 
@@ -1533,59 +1523,8 @@ HTML_INDEX = """
                 color:#fff;
             }
 
+            .obs-cell,
             .foto-cell{
-                display:none !important;
-            }
-
-            .foto-cell::before{
-                display:block;
-                content:"FOTO";
-                margin-bottom:8px;
-                font-size:12px;
-                font-weight:800;
-                color:#bfdbfe;
-                letter-spacing:.04em;
-            }
-
-            .foto-pill{
-                width:100%;
-                display:flex;
-                align-items:center;
-                gap:10px;
-                background:rgba(255,255,255,.05);
-                border:1px solid rgba(96,165,250,.22);
-                border-radius:14px;
-                padding:10px 12px;
-            }
-
-            .foto-pill span{
-                font-size:14px;
-                font-weight:700;
-                color:#eff6ff;
-            }
-
-            input.foto{
-                background:transparent;
-                border:0;
-                padding:0;
-                color:#e5eefc;
-            }
-
-            .foto-name{
-                max-width:100%;
-                font-size:13px;
-                color:#cbd5e1;
-                margin-top:8px;
-            }
-
-            .preview{
-                width:70px;
-                height:70px;
-                border-radius:12px;
-                border:1px solid rgba(148,163,184,.35);
-            }
-
-            .obs-cell{
                 display:none !important;
             }
 
@@ -1599,7 +1538,7 @@ HTML_INDEX = """
                 position:sticky;
                 bottom:0;
                 padding:10px 0 6px;
-                background:linear-gradient(180deg, rgba(2,11,24,0), rgba(2,11,24,.86) 28%, rgba(2,11,24,.96) 100%);
+                background:linear-gradient(180deg, rgba(2,11,24,0), rgba(2,11,24,.90) 32%, rgba(2,11,24,.98) 100%);
             }
 
             .save{
@@ -1785,11 +1724,13 @@ HTML_INDEX = """
 
                         <td class="desc desc-cell" data-label="DESCRIPCIÓN">
                             <div class="desc-main">{{ item['descripcion'] }}</div>
+
                             <div class="mobile-meta">
                                 {% if item['referencia'] %}<span>REF: {{ item['referencia'] }}</span>{% endif %}
                                 {% if item['senal'] %}<span>SEÑAL: {{ item['senal'] }}</span>{% endif %}
                                 {% if item['unidad'] %}<span>UNIDAD: {{ item['unidad'] }}</span>{% endif %}
                             </div>
+
                             {% if item['referencia'] %}
                                 <div class="ref-inline">REF: {{ item['referencia'] }}</div>
                             {% endif %}
