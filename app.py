@@ -1833,6 +1833,14 @@ HTML_INDEX = """
                 color:#eff6ff !important;
             }
         }
+
+        /* REFUERZO DEFINITIVO: si JS marca oculto, no se muestra ni en móvil ni en escritorio */
+        #tablaMBO tr.hidden-by-filter,
+        #tablaMBO tr.item-row.hidden-by-filter,
+        #tablaMBO tr.group-row.hidden-by-filter,
+        #tablaMBO tr.grupo.hidden-by-filter{
+            display:none !important;
+        }
     </style>
 </head>
 
@@ -2087,6 +2095,24 @@ document.addEventListener("DOMContentLoaded", function(){
     const horaRegistro = document.getElementById("horaRegistro");
     const operadorRegistro = document.getElementById("operadorRegistro");
 
+    function ocultarElemento(el){
+        if(!el) return;
+        el.classList.add("hidden-by-filter");
+        // En móvil hay reglas con display:grid !important.
+        // Por eso se fuerza el display none también como inline important.
+        el.style.setProperty("display", "none", "important");
+    }
+
+    function mostrarElemento(el){
+        if(!el) return;
+        el.classList.remove("hidden-by-filter");
+        el.style.removeProperty("display");
+    }
+
+    function elementoVisiblePorFiltro(el){
+        return el && !el.classList.contains("hidden-by-filter") && el.style.display !== "none";
+    }
+
     function pad2(n){
         return String(n).padStart(2, "0");
     }
@@ -2310,9 +2336,7 @@ document.addEventListener("DOMContentLoaded", function(){
             row.classList.toggle("row-complete", lleno);
         });
 
-        const visibles = rows.filter(row =>
-            !row.classList.contains("hidden-by-filter") && row.style.display !== "none"
-        );
+        const visibles = rows.filter(row => elementoVisiblePorFiltro(row));
         const base = visibles.length ? visibles : rows;
         const completos = base.filter(row => rowTieneDato(row)).length;
         const total = base.length || 1;
@@ -2334,14 +2358,18 @@ document.addEventListener("DOMContentLoaded", function(){
             let visible = false;
 
             while(next && !next.classList.contains("group-row")){
-                if(next.classList.contains("item-row") && !next.classList.contains("hidden-by-filter") && next.style.display !== "none"){
+                if(next.classList.contains("item-row") && elementoVisiblePorFiltro(next)){
                     visible = true;
                     break;
                 }
                 next = next.nextElementSibling;
             }
 
-            group.classList.toggle("hidden-by-filter", !visible);
+            if(visible){
+                mostrarElemento(group);
+            }else{
+                ocultarElemento(group);
+            }
         });
     }
 
@@ -2357,11 +2385,17 @@ document.addEventListener("DOMContentLoaded", function(){
             if(filtroModo === "pendientes") coincideModo = !lleno;
             if(filtroModo === "llenados") coincideModo = lleno;
 
-            row.classList.toggle("hidden-by-filter", !(coincideTexto && coincideModo && coincideNivel));
+            const visible = coincideTexto && coincideModo && coincideNivel;
+
+            if(visible){
+                mostrarElemento(row);
+            }else{
+                ocultarElemento(row);
+            }
         });
 
-        actualizarCompletados();
         actualizarVisibilidadGrupos();
+        actualizarCompletados();
     }
 
     function guardarFilaSiSalio(row){
@@ -2513,8 +2547,11 @@ document.addEventListener("DOMContentLoaded", function(){
             const chipTodos = document.querySelector(".nivel-chip[data-nivel='']");
             if(chipTodos) chipTodos.classList.add("active");
 
-            rows.forEach(row => row.style.display = "");
-            groups.forEach(group => group.classList.remove("collapsed"));
+            rows.forEach(row => mostrarElemento(row));
+            groups.forEach(group => {
+                group.classList.remove("collapsed");
+                mostrarElemento(group);
+            });
 
             aplicarFiltro();
         });
@@ -2545,7 +2582,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
             while(next && !next.classList.contains("group-row")){
                 if(next.classList.contains("item-row")){
-                    next.style.display = colapsar ? "none" : "";
+                    if(colapsar){
+                        next.style.setProperty("display", "none", "important");
+                    }else if(!next.classList.contains("hidden-by-filter")){
+                        next.style.removeProperty("display");
+                    }
                 }
                 next = next.nextElementSibling;
             }
