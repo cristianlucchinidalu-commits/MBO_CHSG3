@@ -1011,9 +1011,10 @@ HTML_INDEX = """
             display:none !important;
         }
 
-        #tablaMBO th:nth-child(4){ width:52%; }
-        #tablaMBO th:nth-child(5){ width:24%; }
-        #tablaMBO th:nth-child(6){ width:24%; }
+        #tablaMBO th:nth-child(4){ width:48%; }
+        #tablaMBO th:nth-child(5){ width:8%; }
+        #tablaMBO th:nth-child(6){ width:22%; }
+        #tablaMBO th:nth-child(7){ width:22%; }
 
         #tablaMBO th{
             background:#f8fafc;
@@ -1525,6 +1526,7 @@ HTML_INDEX = """
                         <th>NIVEL</th>
                         <th>SISTEMA / EQUIPO</th>
                         <th>DESCRIPCIÓN</th>
+                        <th>UNIDAD</th>
                         <th>VALOR</th>
                         <th>FOTO</th>
                     </tr>
@@ -1538,7 +1540,7 @@ HTML_INDEX = """
 
                     {% if grupo_actual != ns.grupo %}
                         <tr class="grupo group-row" data-nivel="{{ item['nivel'] or '' }}">
-                            <td colspan="6">
+                            <td colspan="7">
                                 <div class="group-inner">
                                     <span class="group-title">
                                         {{ item['nivel'] or '-' }} / {{ item['sistema'] or '-' }}
@@ -1573,16 +1575,16 @@ HTML_INDEX = """
 
                         <td class="desc desc-cell" data-label="DESCRIPCIÓN">
                             <div class="desc-main">{{ item['descripcion'] }}</div>
-                            {% if item['referencia'] or item['senal'] or item['unidad'] %}
+                            {% if item['referencia'] or item['senal'] %}
                                 <div class="ref-inline">
                                     {% if item['referencia'] %}REF: {{ item['referencia'] }}{% endif %}
-                                    {% if item['referencia'] and (item['senal'] or item['unidad']) %} | {% endif %}
+                                    {% if item['referencia'] and item['senal'] %} | {% endif %}
                                     {% if item['senal'] %}SEÑAL: {{ item['senal'] }}{% endif %}
-                                    {% if item['senal'] and item['unidad'] %} | {% endif %}
-                                    {% if item['unidad'] %}UNIDAD: {{ item['unidad'] }}{% endif %}
                                 </div>
                             {% endif %}
                         </td>
+
+                        <td class="center" data-label="UNIDAD">{{ item['unidad'] or '' }}</td>
 
                         <td data-label="VALOR">
                             {% if item['valor_opciones'] %}
@@ -2156,7 +2158,7 @@ HTML_REGISTROS = """
                 <tr>
                     <th>ID</th><th>Fecha</th><th>Hora</th><th>Operador</th><th>Zona</th>
                     <th>Sistema</th><th>Equipo</th><th>Descripción</th><th>Valor</th>
-                    <th>Foto</th>
+                    <th>Unidad</th><th>Foto</th>
                 </tr>
             </thead>
             <tbody>
@@ -2171,6 +2173,7 @@ HTML_REGISTROS = """
                     <td>{{ r['equipo'] }}</td>
                     <td>{{ r['descripcion'] }}</td>
                     <td>{{ r['valor'] }}</td>
+                    <td>{{ r['unidad'] }}</td>
                     <td>
                         {% if r['foto'] %}
                             <a class="foto" href="{{ url_for('ver_foto', filename=r['foto']) }}" target="_blank">Ver</a>
