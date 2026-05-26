@@ -409,39 +409,71 @@ def cargar_items_desde_excel(forzar=False):
 
 def aplicar_ajustes_comunes():
     """
-    Ajuste manual para la hoja COMUNES:
-    - Ítems 19 al 29: BARRA A
-    - Ítems 30 al 40: BARRA B
+    Ajustes manuales para la hoja COMUNES:
+    - Mantiene la separación BARRA A / BARRA B en SALA ELÉCTRICA 400 V.
+    - Separa los nuevos bloques COMPRESOR #1, COMPRESOR #2 y COMPRESOR #3
+      en los sistemas de aire comprimido.
 
-    Se actualiza el campo equipo para que la pantalla agrupe y diferencie correctamente
-    ambas barras dentro de SALA ELÉCTRICA 400 V. También actualiza registros ya guardados.
+    Esto solo corrige la agrupación visual del aplicativo y registros ya guardados.
     """
     conn = conectar()
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT id
+        SELECT id, descripcion, sistema, equipo
         FROM items_mbo
         WHERE zona = ? AND activo = 1
         ORDER BY id
     """, ("COMUNES",))
     filas = cur.fetchall()
 
-    for numero_item, fila in enumerate(filas, start=1):
-        equipo_barra = ""
-        if 19 <= numero_item <= 29:
-            equipo_barra = "BARRA A"
-        elif 30 <= numero_item <= 40:
-            equipo_barra = "BARRA B"
+    compresor_actual = ""
 
-        if equipo_barra:
-            item_id = fila["id"]
-            cur.execute("UPDATE items_mbo SET equipo = ? WHERE id = ?", (equipo_barra, item_id))
+    for numero_item, fila in enumerate(filas, start=1):
+        item_id = fila["id"]
+        desc_norm = normalizar(fila["descripcion"])
+        sistema_norm = normalizar(fila["sistema"])
+        equipo_norm = normalizar(fila["equipo"])
+
+        equipo_nuevo = ""
+
+        # Ajuste histórico de SALA ELÉCTRICA 400 V.
+        # Se limita al sistema eléctrico para no afectar los nuevos compresores.
+        if "SALA ELECTRICA" in sistema_norm or "400" in sistema_norm or equipo_norm.startswith("BARRA"):
+            if 19 <= numero_item <= 29:
+                equipo_nuevo = "BARRA A"
+            elif 30 <= numero_item <= 40:
+                equipo_nuevo = "BARRA B"
+
+        # Nuevos bloques de COMUNES: compresores 1, 2 y 3.
+        # Detecta encabezados como SELECTOR CONTROL - COMPRESOR 1,
+        # TEMPERATURA - COMPRESOR 2, etc. y agrupa las filas siguientes.
+        if "COMPRESOR" in desc_norm or "AIRE COMPRIMIDO" in sistema_norm:
+            if re.search(r"COMPRESOR\s*(NRO\.?|N°|NO\.?|#)?\s*1", desc_norm):
+                compresor_actual = "COMPRESOR #1"
+            elif re.search(r"COMPRESOR\s*(NRO\.?|N°|NO\.?|#)?\s*2", desc_norm):
+                compresor_actual = "COMPRESOR #2"
+            elif re.search(r"COMPRESOR\s*(NRO\.?|N°|NO\.?|#)?\s*3", desc_norm):
+                compresor_actual = "COMPRESOR #3"
+
+            # Filas asociadas a tanque N°1/N°2/N°3 también se ubican en su compresor.
+            if re.search(r"TANQUE\s*(NRO\.?|N°|NO\.?|#)?\s*1", desc_norm):
+                compresor_actual = "COMPRESOR #1"
+            elif re.search(r"TANQUE\s*(NRO\.?|N°|NO\.?|#)?\s*2", desc_norm):
+                compresor_actual = "COMPRESOR #2"
+            elif re.search(r"TANQUE\s*(NRO\.?|N°|NO\.?|#)?\s*3", desc_norm):
+                compresor_actual = "COMPRESOR #3"
+
+            if compresor_actual:
+                equipo_nuevo = compresor_actual
+
+        if equipo_nuevo:
+            cur.execute("UPDATE items_mbo SET equipo = ? WHERE id = ?", (equipo_nuevo, item_id))
             cur.execute("""
                 UPDATE registros_mbo
                 SET equipo = ?
                 WHERE zona = ? AND item_id = ?
-            """, (equipo_barra, "COMUNES", item_id))
+            """, (equipo_nuevo, "COMUNES", item_id))
 
     conn.commit()
     conn.close()
@@ -478,7 +510,19 @@ def aplicar_ajustes_colchon_aire_solo_app():
         es_item_136_app = numero_item == 136 and es_operador_turno
         es_fila_footer_excel = fila_excel in (146, 136) and es_operador_turno
 
-        if es_footer_accesos or es_item_136_app or es_fila_footer_excel:
+        # Ocultar solo en el aplicativo la primera fila técnica de COLCHÓN DE AIRE
+        # cuando aparece como grupo 0 / UNIDADES / UNIDADES o POTENCIA TOTAL GENERADA.
+        es_primera_fila_no_app = (
+            numero_item == 1
+            and (
+                desc_norm == "POTENCIA TOTAL GENERADA"
+                or nivel_norm in ("0", "")
+                or sistema_norm == "UNIDADES"
+                or equipo_norm == "UNIDADES"
+            )
+        )
+
+        if es_footer_accesos or es_item_136_app or es_fila_footer_excel or es_primera_fila_no_app:
             cur.execute("UPDATE items_mbo SET activo = 0 WHERE id = ?", (fila["id"],))
 
     conn.commit()
@@ -1924,8 +1968,10 @@ HTML_INDEX = """
                         {% set ns.grupo = grupo_actual %}
                     {% endif %}
 
-                    <tr class="item-row"
+                    <tr class="item-row {% if item.get('ya_guardado') %}row-complete{% endif %}"
                         data-item-id="{{ item['id'] }}"
+                        data-saved="{% if item.get('ya_guardado') %}1{% else %}0{% endif %}"
+                        data-foto-guardada="{% if item.get('foto_guardada') %}1{% else %}0{% endif %}"
                         data-nivel="{{ item['nivel'] or '' }}"
                         data-search="{{ (item['nivel'] ~ ' ' ~ item['sistema'] ~ ' ' ~ item['equipo'] ~ ' ' ~ item['descripcion'] ~ ' ' ~ item['unidad'] ~ ' ' ~ item['senal'] ~ ' ' ~ item['referencia'])|lower }}">
 
@@ -1969,18 +2015,18 @@ HTML_INDEX = """
                                 <div class="choice-group">
                                     {% for op in item['valor_opciones'] %}
                                         <label class="choice-pill">
-                                            <input class="campo-control valor-choice" type="radio" name="valor_{{ item['id'] }}" value="{{ op['value'] }}">
+                                            <input class="campo-control valor-choice" type="radio" name="valor_{{ item['id'] }}" value="{{ op['value'] }}" {% if item.get('valor_guardado') == op['value'] %}checked{% endif %}>
                                             <span>{{ op['label'] }}</span>
                                         </label>
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                <input class="valor campo-control" type="text" name="valor_{{ item['id'] }}" placeholder="{% if item.get('convertir_horas') %}Ej: 20D15H20M10S{% else %}Valor{% endif %}" data-convert-horas="{% if item.get('convertir_horas') %}1{% else %}0{% endif %}">
+                                <input class="valor campo-control" type="text" name="valor_{{ item['id'] }}" value="{{ item.get('valor_guardado', '') }}" placeholder="{% if item.get('convertir_horas') %}Ej: 20D15H20M10S{% else %}Valor{% endif %}" data-convert-horas="{% if item.get('convertir_horas') %}1{% else %}0{% endif %}">
                             {% endif %}
                         </td>
 
                         <td class="obs-cell" data-label="OBSERVACIÓN">
-                            <textarea class="obs campo-control" name="obs_{{ item['id'] }}" rows="1" placeholder="Observación"></textarea>
+                            <textarea class="obs campo-control" name="obs_{{ item['id'] }}" rows="1" placeholder="Observación">{{ item.get('obs_guardada', '') }}</textarea>
                         </td>
 
                         <td class="foto-cell" data-label="FOTO">
@@ -1988,7 +2034,7 @@ HTML_INDEX = """
                                 <input id="foto_{{ item['id'] }}" class="foto campo-control" type="file" name="foto_{{ item['id'] }}" accept="image/*" capture="environment">
                                 <span>📷 Foto</span>
                             </label>
-                            <div class="foto-name">Sin foto</div>
+                            <div class="foto-name">{% if item.get('foto_guardada') %}Foto guardada{% else %}Sin foto{% endif %}</div>
                             <img class="preview" alt="Vista previa">
                         </td>
                     </tr>
@@ -2193,6 +2239,8 @@ document.addEventListener("DOMContentLoaded", function(){
                 if(valor) valor.value = data.valor_convertido;
             }
 
+            row.dataset.saved = "1";
+
             if(data.foto){
                 row.dataset.fotoGuardada = "1";
                 if(foto) foto.value = "";
@@ -2224,6 +2272,8 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     function rowTieneDato(row){
+        if(row.dataset.saved === "1") return true;
+
         const valor = row.querySelector("input.valor");
         const obs = row.querySelector("textarea.obs");
         const foto = row.querySelector("input.foto");
@@ -2238,16 +2288,17 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     function actualizarCompletados(){
-        let completos = 0;
-
         rows.forEach(row => {
             const lleno = rowTieneDato(row);
             row.classList.toggle("row-complete", lleno);
-
-            if(lleno) completos++;
         });
 
-        const total = rows.length || 1;
+        const visibles = rows.filter(row =>
+            !row.classList.contains("hidden-by-filter") && row.style.display !== "none"
+        );
+        const base = visibles.length ? visibles : rows;
+        const completos = base.filter(row => rowTieneDato(row)).length;
+        const total = base.length || 1;
         const pct = Math.round((completos / total) * 100);
 
         if(progressFill){
@@ -2255,7 +2306,7 @@ document.addEventListener("DOMContentLoaded", function(){
         }
 
         if(progressText){
-            progressText.textContent = completos + " / " + rows.length + " llenados";
+            progressText.textContent = completos + " / " + base.length + " llenados";
         }
 
     }
@@ -2292,6 +2343,7 @@ document.addEventListener("DOMContentLoaded", function(){
             row.classList.toggle("hidden-by-filter", !(coincideTexto && coincideModo && coincideNivel));
         });
 
+        actualizarCompletados();
         actualizarVisibilidadGrupos();
     }
 
@@ -2730,6 +2782,11 @@ def index():
 
     zona = request.args.get("zona") or (zonas[0] if zonas else "")
 
+    # Hora local Perú para que el filtro de pendientes lea la misma fecha
+    # que usa el operador en el celular/PC.
+    ahora = datetime.utcnow() - timedelta(hours=5)
+    fecha_hoy = ahora.strftime("%Y-%m-%d")
+
     cur.execute("""
         SELECT * FROM items_mbo
         WHERE activo = 1 AND zona = ?
@@ -2737,11 +2794,34 @@ def index():
     """, (zona,))
     items_raw = cur.fetchall()
 
+    # Registros ya guardados para esta fecha y zona.
+    # Esto permite que el filtro "Solo pendientes" o por NIVEL no vuelva a
+    # mostrar como pendientes los ítems que ya fueron guardados.
+    cur.execute("""
+        SELECT item_id, valor, observacion, foto
+        FROM registros_mbo
+        WHERE fecha = ? AND zona = ?
+    """, (fecha_hoy, zona))
+    registros_guardados = {
+        int(r["item_id"]): {
+            "valor": limpiar_texto(r["valor"]),
+            "observacion": limpiar_texto(r["observacion"]),
+            "foto": limpiar_texto(r["foto"]),
+        }
+        for r in cur.fetchall()
+        if r["item_id"] is not None
+    }
+
     items = []
     for item in items_raw:
         item_dict = dict(item)
+        guardado = registros_guardados.get(int(item_dict["id"]))
         item_dict["valor_opciones"] = opciones_selector_valor(item_dict.get("referencia", ""))
         item_dict["convertir_horas"] = es_item_horas_operacion(item_dict)
+        item_dict["valor_guardado"] = guardado["valor"] if guardado else ""
+        item_dict["obs_guardada"] = guardado["observacion"] if guardado else ""
+        item_dict["foto_guardada"] = guardado["foto"] if guardado else ""
+        item_dict["ya_guardado"] = bool(guardado and (guardado["valor"] or guardado["observacion"] or guardado["foto"]))
         items.append(item_dict)
 
     niveles = []
@@ -2764,7 +2844,6 @@ def index():
 
     conn.close()
 
-    ahora = datetime.now()
     return render_template_string(
         HTML_INDEX,
         zonas=zonas,
@@ -2772,7 +2851,7 @@ def index():
         niveles=niveles,
         items=items,
         total_items=total_items,
-        fecha_hoy=ahora.strftime("%Y-%m-%d"),
+        fecha_hoy=fecha_hoy,
         hora_actual=ahora.strftime("%H:%M"),
         ultimo_operador=ultimo_operador,
     )
@@ -3260,7 +3339,7 @@ def recargar_items():
     total, mensaje = cargar_items_desde_excel(forzar=True)
     aplicar_ajustes_comunes()
     aplicar_ajustes_colchon_aire_solo_app()
-    flash(f"{mensaje} Ítems cargados: {total}. Ajustes aplicados: COMUNES BARRA A/B y COLCHON DE AIRE sin mostrar OPERADOR DE TURNO como ítem.")
+    flash(f"{mensaje} Ítems cargados: {total}. Ajustes aplicados: COMUNES BARRA A/B + COMPRESORES #1/#2/#3, y COLCHON DE AIRE sin primera fila técnica ni OPERADOR DE TURNO como ítem.")
     return redirect(url_for("index"))
 
 
