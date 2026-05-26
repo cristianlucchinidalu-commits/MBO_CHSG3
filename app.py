@@ -1669,6 +1669,16 @@ HTML_INDEX = """
                 box-shadow:0 14px 28px rgba(2,8,23,.30) !important;
             }
 
+            /* IMPORTANTE:
+               En móvil el item-row usa display:grid !important.
+               Sin esta regla, el filtro JS agrega hidden-by-filter,
+               pero CSS móvil lo vuelve a mostrar encima del filtro. */
+            #tablaMBO tr.item-row.hidden-by-filter,
+            #tablaMBO tr.group-row.hidden-by-filter,
+            #tablaMBO tr.grupo.hidden-by-filter{
+                display:none !important;
+            }
+
             #tablaMBO tr.item-row td{
                 display:none !important;
                 width:auto !important;
