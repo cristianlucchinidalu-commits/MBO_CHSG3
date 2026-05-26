@@ -1373,7 +1373,7 @@ HTML_INDEX = """
 
             tr.item-row{
                 display:grid;
-                grid-template-columns:minmax(0, 1fr) 116px;
+                grid-template-columns:minmax(0, 1fr) 112px;
                 grid-template-areas:
                     "head value"
                     "desc value";
@@ -1411,32 +1411,20 @@ HTML_INDEX = """
                 grid-area:head;
                 display:flex !important;
                 align-items:center;
-                gap:12px;
-                padding:16px 14px 6px;
+                gap:0;
+                padding:16px 14px 6px 18px;
                 border:0;
             }
 
             .mobile-num{
-                width:38px;
-                height:38px;
-                flex:0 0 38px;
-                display:inline-flex;
-                align-items:center;
-                justify-content:center;
-                padding:0;
-                border-radius:999px;
-                font-size:15px;
-                font-weight:800;
-                background:linear-gradient(135deg, #3b82f6, #1d4ed8);
-                color:#fff;
-                box-shadow:0 8px 16px rgba(37,99,235,.30);
+                display:none !important;
             }
 
             .mobile-title{
                 display:block;
                 font-weight:800;
                 color:#f8fafc;
-                font-size:16px;
+                font-size:17px;
                 line-height:1.22;
                 text-transform:uppercase;
             }
@@ -1444,7 +1432,7 @@ HTML_INDEX = """
             .desc-cell{
                 grid-area:desc;
                 display:block !important;
-                padding:0 14px 16px 64px !important;
+                padding:0 14px 16px 18px !important;
                 border:0;
             }
 
@@ -1461,7 +1449,7 @@ HTML_INDEX = """
                 color:#dbeafe;
                 font-size:12px;
                 font-weight:700;
-                line-height:1.55;
+                line-height:1.6;
             }
 
             .mobile-meta span:not(:last-child)::after{
@@ -1475,23 +1463,23 @@ HTML_INDEX = """
                 display:flex !important;
                 align-items:center;
                 justify-content:center;
-                padding:14px 12px 14px 0 !important;
+                padding:14px 16px 14px 0 !important;
                 border:0;
             }
 
             .valor-cell input.valor{
                 width:100%;
                 min-width:0;
-                min-height:70px;
+                min-height:68px;
                 padding:12px 8px;
                 text-align:center;
-                font-size:18px;
+                font-size:17px;
                 font-weight:800;
                 color:#fff;
-                background:linear-gradient(135deg, #1d4ed8, #3b82f6);
-                border:1px solid rgba(191,219,254,.45);
-                border-radius:16px;
-                box-shadow:0 10px 20px rgba(37,99,235,.30);
+                background:linear-gradient(135deg, #1e6d92, #156082);
+                border:2px solid rgba(8,47,73,.85);
+                border-radius:14px;
+                box-shadow:none;
             }
 
             .valor-cell input.valor::placeholder{
@@ -1709,7 +1697,6 @@ HTML_INDEX = """
                         data-search="{{ (item['nivel'] ~ ' ' ~ item['sistema'] ~ ' ' ~ item['equipo'] ~ ' ' ~ item['descripcion'] ~ ' ' ~ item['unidad'] ~ ' ' ~ item['senal'] ~ ' ' ~ item['referencia'])|lower }}">
 
                         <td class="mobile-head" data-label="N°">
-                            <span class="pill mobile-num">{{ loop.index }}</span>
                             <span class="mobile-title">{{ item['descripcion'] }}</span>
                         </td>
 
