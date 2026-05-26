@@ -958,6 +958,11 @@ HTML_INDEX = """
             background:linear-gradient(135deg, #15803d, #2f8f46);
         }
 
+        textarea.obs{
+            min-width:160px;
+            resize:vertical;
+        }
+
         input.foto{
             min-width:145px;
             font-size:12px;
@@ -1005,16 +1010,20 @@ HTML_INDEX = """
         #tablaMBO th:nth-child(1),
         #tablaMBO th:nth-child(2),
         #tablaMBO th:nth-child(3),
+        #tablaMBO th:nth-child(7),
         #tablaMBO tr.item-row td:nth-child(1),
         #tablaMBO tr.item-row td:nth-child(2),
-        #tablaMBO tr.item-row td:nth-child(3){
+        #tablaMBO tr.item-row td:nth-child(3),
+        #tablaMBO tr.item-row td:nth-child(7){
             display:none !important;
         }
 
-        #tablaMBO th:nth-child(4){ width:48%; }
-        #tablaMBO th:nth-child(5){ width:8%; }
-        #tablaMBO th:nth-child(6){ width:22%; }
-        #tablaMBO th:nth-child(7){ width:22%; }
+        #tablaMBO th:nth-child(4){ width:36%; }
+        #tablaMBO th:nth-child(5){ width:7%; }
+        #tablaMBO th:nth-child(6){ width:9%; }
+        #tablaMBO th:nth-child(8){ width:14%; }
+        #tablaMBO th:nth-child(9){ width:20%; }
+        #tablaMBO th:nth-child(10){ width:14%; }
 
         #tablaMBO th{
             background:#f8fafc;
@@ -1094,12 +1103,17 @@ HTML_INDEX = """
             padding:3px 9px;
         }
 
+        .mobile-meta{
+            display:none;
+        }
+
         #tablaMBO .center{
             font-size:17px;
             font-weight:700;
         }
 
-        #tablaMBO input.valor{
+        #tablaMBO input.valor,
+        #tablaMBO textarea.obs{
             width:100%;
             min-width:0;
             border-radius:8px;
@@ -1110,6 +1124,11 @@ HTML_INDEX = """
         #tablaMBO input.valor{
             min-height:42px;
             text-align:center;
+        }
+
+        #tablaMBO textarea.obs{
+            min-height:42px;
+            resize:vertical;
         }
 
         #tablaMBO .choice-group{
@@ -1230,9 +1249,13 @@ HTML_INDEX = """
                 width:100%;
             }
 
-            #tablaMBO tr.item-row td:nth-child(1),
             #tablaMBO tr.item-row td:nth-child(2),
-            #tablaMBO tr.item-row td:nth-child(3){
+            #tablaMBO tr.item-row td:nth-child(3),
+            #tablaMBO tr.item-row td:nth-child(5),
+            #tablaMBO tr.item-row td:nth-child(6),
+            #tablaMBO tr.item-row td:nth-child(7),
+            #tablaMBO tr.item-row td:nth-child(9),
+            #tablaMBO tr.item-row td:nth-child(10){
                 display:none !important;
             }
 
@@ -1240,138 +1263,257 @@ HTML_INDEX = """
                 display:none;
             }
 
+            /* MODO CELULAR TIPO LISTA AZUL */
+            body{
+                background:radial-gradient(circle at top, #0f3f86 0%, #071f49 35%, #020b24 100%);
+                color:#e5eefc;
+            }
+
+            .wrap{
+                padding:8px;
+                max-width:100%;
+            }
+
+            .top,
+            .panel{
+                background:rgba(7, 24, 52, .82);
+                color:#e5eefc;
+                border:1px solid rgba(96,165,250,.22);
+                box-shadow:0 12px 28px rgba(2,8,23,.30);
+            }
+
+            .top h2,
+            .top p,
+            .badge,
+            label,
+            .small,
+            .nivel-ayuda,
+            .progress-text{
+                color:#e5eefc;
+            }
+
+            input,
+            select,
+            textarea{
+                background:rgba(255,255,255,.08);
+                color:#f8fafc;
+                border-color:rgba(148,163,184,.35);
+            }
+
+            input::placeholder,
+            textarea::placeholder{
+                color:#cbd5e1;
+            }
+
+            .nivel-chip,
+            .toolbar .mini-btn{
+                background:rgba(30,64,175,.22);
+                color:#e5eefc;
+                border-color:rgba(96,165,250,.35);
+            }
+
+            .nivel-chip.active{
+                background:linear-gradient(135deg, #2563eb, #1d4ed8);
+                color:#fff;
+                border-color:#60a5fa;
+            }
+
+            .progress-card{
+                background:rgba(30,64,175,.20);
+                border:1px solid rgba(96,165,250,.25);
+            }
+
+            .progress-bar{
+                background:rgba(255,255,255,.12);
+                border-color:rgba(148,163,184,.25);
+            }
+
+            .tablebox{
+                max-height:none;
+                overflow:visible;
+                background:transparent;
+                border:0;
+                box-shadow:none;
+                border-radius:0;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr{
+                display:block;
+                width:100%;
+            }
+
             .grupo{
-                margin:12px 0 8px;
+                margin:12px 0 10px;
             }
 
             .grupo td{
                 position:relative;
                 top:auto;
-                border-radius:12px;
+                border-radius:18px;
                 margin:0;
-                padding:12px 14px;
+                padding:16px 18px;
                 font-size:15px;
                 line-height:1.35;
-                border:1px solid #111827;
-                box-shadow:0 5px 14px rgba(15,23,42,.10);
-                background:#48b7dc !important;
-                color:#020617;
+                border:1px solid rgba(96,165,250,.40);
+                box-shadow:0 10px 22px rgba(2,8,23,.28);
+                background:linear-gradient(135deg, rgba(13,71,161,.92), rgba(8,47,116,.92)) !important;
+                color:#f8fafc;
+            }
+
+            .group-title{
+                font-size:18px;
+                font-weight:800;
+                letter-spacing:.02em;
             }
 
             tr.item-row{
-                background:white;
-                margin:10px 0 14px;
-                border-radius:18px;
-                box-shadow:0 8px 22px rgba(15,23,42,.10);
+                display:grid;
+                grid-template-columns:minmax(0, 1fr) 112px;
+                grid-template-areas:
+                    "head value"
+                    "desc value";
+                column-gap:8px;
+                row-gap:0;
+                margin:10px 0 16px;
+                border-radius:20px;
                 overflow:hidden;
-                border:1px solid var(--borde);
+                border:1px solid rgba(96,165,250,.22);
+                box-shadow:0 14px 28px rgba(2,8,23,.30);
+                background:linear-gradient(135deg, rgba(7,31,68,.98), rgba(3,18,43,.98));
             }
 
             tr.item-row td{
                 border:0;
-                border-bottom:1px solid #eef2f7;
-                background:white !important;
-                padding:9px 12px;
-                display:grid;
-                grid-template-columns:96px minmax(0, 1fr);
-                column-gap:10px;
-                align-items:start;
-                font-size:13px;
-                line-height:1.35;
+                background:transparent !important;
+                padding:0;
                 text-align:left !important;
-                overflow-wrap:anywhere;
-                word-break:normal;
+                color:#e5eefc;
+            }
+
+            tr.item-row.row-complete{
+                border-color:rgba(34,197,94,.45);
             }
 
             tr.item-row.row-complete td{
-                background:var(--verde2) !important;
+                background:transparent !important;
             }
 
             tr.item-row td::before{
-                content:attr(data-label);
-                font-weight:bold;
-                color:#334155;
-                font-size:12px;
-                line-height:1.25;
-                padding-top:2px;
+                display:none !important;
             }
 
             tr.item-row td.mobile-head{
-                display:flex;
-                justify-content:space-between;
+                grid-area:head;
+                display:flex !important;
                 align-items:center;
-                gap:10px;
-                background:#f8fbff !important;
-                border-bottom:1px solid #dbe8f7;
-            }
-
-            tr.item-row.row-complete td.mobile-head{
-                background:#e0f6e7 !important;
-            }
-
-            tr.item-row td.mobile-head::before{
-                content:"";
-                display:none;
-            }
-
-            .mobile-title{
-                font-weight:bold;
-                color:#111827;
-                font-size:14px;
-                line-height:1.35;
+                gap:0;
+                padding:16px 14px 6px 18px;
+                border:0;
             }
 
             .mobile-num{
-                flex:0 0 auto;
+                display:none !important;
+            }
+
+            .mobile-title{
+                display:block;
+                font-weight:800;
+                color:#f8fafc;
+                font-size:17px;
+                line-height:1.22;
+                text-transform:uppercase;
             }
 
             .desc-cell{
-                display:grid !important;
-                grid-template-columns:96px minmax(0, 1fr);
+                grid-area:desc;
+                display:block !important;
+                padding:0 14px 16px 18px !important;
+                border:0;
             }
 
-            .desc-cell::before{
-                content:"DESCRIPCIÓN";
-                display:block;
-                margin-bottom:5px;
-                font-size:11px;
-                letter-spacing:.04em;
-                color:#64748b;
+            .desc-cell::before,
+            .desc-main,
+            .ref-inline{
+                display:none !important;
             }
 
-            .desc{
-                min-width:0;
-                font-size:14px;
+            .mobile-meta{
+                display:flex;
+                flex-wrap:wrap;
+                gap:0;
+                color:#dbeafe;
+                font-size:12px;
+                font-weight:700;
+                line-height:1.6;
             }
 
-            .sis,
-            .ref,
-            input.valor,
-            input.foto{
-                min-width:0;
+            .mobile-meta span:not(:last-child)::after{
+                content:" · ";
+                color:#93c5fd;
+                margin:0 7px;
+            }
+
+            .valor-cell{
+                grid-area:value;
+                display:flex !important;
+                align-items:center;
+                justify-content:center;
+                padding:14px 16px 14px 0 !important;
+                border:0;
+            }
+
+            .valor-cell input.valor{
                 width:100%;
+                min-width:0;
+                min-height:68px;
+                padding:12px 8px;
+                text-align:center;
+                font-size:17px;
+                font-weight:800;
+                color:#fff;
+                background:linear-gradient(135deg, #1e6d92, #156082);
+                border:2px solid rgba(8,47,73,.85);
+                border-radius:14px;
+                box-shadow:none;
             }
 
-            .ref{
-                white-space:normal;
-            }
-
-            input.valor,
-            input.foto{
-                font-size:15px;
-                padding:12px;
+            .valor-cell input.valor::placeholder{
+                color:#eff6ff;
+                opacity:1;
+                text-transform:lowercase;
             }
 
             .choice-group{
-                justify-content:flex-start;
+                justify-content:flex-end;
                 min-width:0;
                 width:100%;
+                gap:8px;
             }
 
             .choice-pill span{
-                min-width:56px;
-                padding:10px 13px;
+                min-width:54px;
+                padding:10px 12px;
                 font-size:14px;
+                border-radius:14px;
+                background:rgba(37,99,235,.18);
+                border:1px solid rgba(96,165,250,.30);
+                color:#eff6ff;
+            }
+
+            .choice-pill input:checked + span{
+                background:linear-gradient(135deg, #2563eb, #3b82f6);
+                border-color:#93c5fd;
+                color:#fff;
+            }
+
+            .obs-cell,
+            .foto-cell{
+                display:none !important;
             }
 
             .group-inner{
@@ -1380,29 +1522,172 @@ HTML_INDEX = """
                 gap:8px;
             }
 
-            .foto-pill{
-                width:100%;
-            }
-
-            .foto-name{
-                max-width:100%;
-            }
-
-            .preview{
-                width:70px;
-                height:70px;
-            }
-
             .sticky{
                 position:sticky;
                 bottom:0;
-                padding:8px 0;
-                background:rgba(238,244,251,.96);
+                padding:10px 0 6px;
+                background:linear-gradient(180deg, rgba(2,11,24,0), rgba(2,11,24,.90) 32%, rgba(2,11,24,.98) 100%);
             }
 
             .save{
                 font-size:16px;
-                min-height:54px;
+                min-height:58px;
+                border-radius:18px;
+                background:linear-gradient(135deg, #16a34a, #15803d);
+                color:#fff;
+                border:1px solid rgba(187,247,208,.30);
+                box-shadow:0 10px 22px rgba(21,128,61,.35);
+            }
+        }
+
+
+        /* =========================================================
+           CORRECCIÓN FINAL VISTA CELULAR
+           - El nombre del ítem estaba en la primera columna móvil.
+           - La regla de escritorio la ocultaba con display:none !important.
+           - Estas reglas fuerzan a mostrar DESCRIPCIÓN + metadatos + valor.
+        ========================================================= */
+        @media(max-width:900px){
+            #tablaMBO thead,
+            #tablaMBO thead tr,
+            #tablaMBO thead th{
+                display:none !important;
+                visibility:hidden !important;
+                height:0 !important;
+                padding:0 !important;
+                margin:0 !important;
+                border:0 !important;
+            }
+
+            #tablaMBO tr.item-row{
+                display:grid !important;
+                grid-template-columns:minmax(0, 1fr) 112px !important;
+                grid-template-areas:
+                    "head value"
+                    "desc value" !important;
+                column-gap:8px !important;
+                row-gap:0 !important;
+                margin:10px 0 16px !important;
+                border-radius:20px !important;
+                overflow:hidden !important;
+                background:linear-gradient(135deg, rgba(7,31,68,.98), rgba(3,18,43,.98)) !important;
+                border:1px solid rgba(96,165,250,.22) !important;
+                box-shadow:0 14px 28px rgba(2,8,23,.30) !important;
+            }
+
+            #tablaMBO tr.item-row td{
+                display:none !important;
+                width:auto !important;
+                padding:0 !important;
+                margin:0 !important;
+                border:0 !important;
+                background:transparent !important;
+                color:#e5eefc !important;
+                text-align:left !important;
+            }
+
+            #tablaMBO tr.item-row td::before{
+                display:none !important;
+                content:none !important;
+            }
+
+            #tablaMBO tr.item-row td.mobile-head:nth-child(1){
+                display:flex !important;
+                grid-area:head !important;
+                align-items:center !important;
+                padding:16px 14px 6px 18px !important;
+                border:0 !important;
+                background:transparent !important;
+                color:#f8fafc !important;
+            }
+
+            #tablaMBO tr.item-row td.desc-cell:nth-child(4){
+                display:block !important;
+                grid-area:desc !important;
+                padding:0 14px 16px 18px !important;
+                border:0 !important;
+                background:transparent !important;
+            }
+
+            #tablaMBO tr.item-row td.valor-cell:nth-child(8){
+                display:flex !important;
+                grid-area:value !important;
+                align-items:center !important;
+                justify-content:center !important;
+                padding:14px 16px 14px 0 !important;
+                border:0 !important;
+                background:transparent !important;
+            }
+
+            #tablaMBO .mobile-num{
+                display:none !important;
+            }
+
+            #tablaMBO .mobile-title{
+                display:block !important;
+                font-weight:800 !important;
+                color:#f8fafc !important;
+                font-size:17px !important;
+                line-height:1.22 !important;
+                text-transform:uppercase !important;
+            }
+
+            #tablaMBO .desc-main,
+            #tablaMBO .ref-inline,
+            #tablaMBO .desc-cell::before{
+                display:none !important;
+            }
+
+            #tablaMBO .mobile-meta{
+                display:flex !important;
+                flex-wrap:wrap !important;
+                color:#dbeafe !important;
+                font-size:12px !important;
+                font-weight:700 !important;
+                line-height:1.6 !important;
+            }
+
+            #tablaMBO .mobile-meta span:not(:last-child)::after{
+                content:" · " !important;
+                color:#93c5fd !important;
+                margin:0 7px !important;
+            }
+
+            #tablaMBO .valor-cell input.valor{
+                width:100% !important;
+                min-width:0 !important;
+                min-height:68px !important;
+                padding:12px 8px !important;
+                text-align:center !important;
+                font-size:17px !important;
+                font-weight:800 !important;
+                color:#fff !important;
+                background:linear-gradient(135deg, #1e6d92, #156082) !important;
+                border:2px solid rgba(8,47,73,.85) !important;
+                border-radius:14px !important;
+                box-shadow:none !important;
+            }
+
+            #tablaMBO .valor-cell input.valor::placeholder{
+                color:#eff6ff !important;
+                opacity:1 !important;
+                text-transform:lowercase !important;
+            }
+
+            #tablaMBO .valor-cell .choice-group{
+                justify-content:flex-end !important;
+                min-width:0 !important;
+                width:100% !important;
+            }
+
+            #tablaMBO .valor-cell .choice-pill span{
+                min-width:54px !important;
+                padding:10px 12px !important;
+                font-size:14px !important;
+                border-radius:14px !important;
+                background:rgba(37,99,235,.18) !important;
+                border:1px solid rgba(96,165,250,.30) !important;
+                color:#eff6ff !important;
             }
         }
     </style>
@@ -1527,7 +1812,10 @@ HTML_INDEX = """
                         <th>SISTEMA / EQUIPO</th>
                         <th>DESCRIPCIÓN</th>
                         <th>UNIDAD</th>
+                        <th>SEÑAL</th>
+                        <th>REFERENCIA</th>
                         <th>VALOR</th>
+                        <th>OBSERVACIÓN</th>
                         <th>FOTO</th>
                     </tr>
                 </thead>
@@ -1540,7 +1828,7 @@ HTML_INDEX = """
 
                     {% if grupo_actual != ns.grupo %}
                         <tr class="grupo group-row" data-nivel="{{ item['nivel'] or '' }}">
-                            <td colspan="7">
+                            <td colspan="10">
                                 <div class="group-inner">
                                     <span class="group-title">
                                         {{ item['nivel'] or '-' }} / {{ item['sistema'] or '-' }}
@@ -1560,7 +1848,6 @@ HTML_INDEX = """
                         data-search="{{ (item['nivel'] ~ ' ' ~ item['sistema'] ~ ' ' ~ item['equipo'] ~ ' ' ~ item['descripcion'] ~ ' ' ~ item['unidad'] ~ ' ' ~ item['senal'] ~ ' ' ~ item['referencia'])|lower }}">
 
                         <td class="mobile-head" data-label="N°">
-                            <span class="pill mobile-num">{{ loop.index }}</span>
                             <span class="mobile-title">{{ item['descripcion'] }}</span>
                         </td>
 
@@ -1575,18 +1862,25 @@ HTML_INDEX = """
 
                         <td class="desc desc-cell" data-label="DESCRIPCIÓN">
                             <div class="desc-main">{{ item['descripcion'] }}</div>
-                            {% if item['referencia'] or item['senal'] %}
-                                <div class="ref-inline">
-                                    {% if item['referencia'] %}REF: {{ item['referencia'] }}{% endif %}
-                                    {% if item['referencia'] and item['senal'] %} | {% endif %}
-                                    {% if item['senal'] %}SEÑAL: {{ item['senal'] }}{% endif %}
-                                </div>
+
+                            <div class="mobile-meta">
+                                {% if item['referencia'] %}<span>REF: {{ item['referencia'] }}</span>{% endif %}
+                                {% if item['senal'] %}<span>SEÑAL: {{ item['senal'] }}</span>{% endif %}
+                                {% if item['unidad'] %}<span>UNIDAD: {{ item['unidad'] }}</span>{% endif %}
+                            </div>
+
+                            {% if item['referencia'] %}
+                                <div class="ref-inline">REF: {{ item['referencia'] }}</div>
                             {% endif %}
                         </td>
 
                         <td class="center" data-label="UNIDAD">{{ item['unidad'] or '' }}</td>
 
-                        <td data-label="VALOR">
+                        <td class="center" data-label="SEÑAL">{{ item['senal'] or '' }}</td>
+
+                        <td class="ref" data-label="REFERENCIA">{{ item['referencia'] or '' }}</td>
+
+                        <td class="valor-cell" data-label="VALOR">
                             {% if item['valor_opciones'] %}
                                 <div class="choice-group">
                                     {% for op in item['valor_opciones'] %}
@@ -1601,7 +1895,11 @@ HTML_INDEX = """
                             {% endif %}
                         </td>
 
-                        <td data-label="FOTO">
+                        <td class="obs-cell" data-label="OBSERVACIÓN">
+                            <textarea class="obs campo-control" name="obs_{{ item['id'] }}" rows="1" placeholder="Observación"></textarea>
+                        </td>
+
+                        <td class="foto-cell" data-label="FOTO">
                             <label class="foto-pill">
                                 <input class="foto campo-control" type="file" name="foto_{{ item['id'] }}" accept="image/*" capture="environment">
                                 <span>📷 Foto</span>
@@ -1783,7 +2081,8 @@ document.addEventListener("DOMContentLoaded", function(){
         formData.append("usuario", operadorRegistro ? operadorRegistro.value.trim() : "");
         formData.append("valor", obtenerValorFila(row));
 
-        formData.append("observacion", "");
+        const obs = row.querySelector("textarea.obs");
+        formData.append("observacion", obs ? obs.value.trim() : "");
 
         const foto = row.querySelector("input.foto");
         if(foto && foto.files && foto.files[0]){
@@ -1842,14 +2141,16 @@ document.addEventListener("DOMContentLoaded", function(){
 
     function rowTieneDato(row){
         const valor = row.querySelector("input.valor");
+        const obs = row.querySelector("textarea.obs");
         const foto = row.querySelector("input.foto");
 
         const valorChoice = row.querySelector("input.valor-choice:checked");
 
         const tieneValor = (valor && valor.value.trim() !== "") || !!valorChoice;
+        const tieneObs = obs && obs.value.trim() !== "";
         const tieneFoto = (foto && foto.files && foto.files.length > 0) || row.dataset.fotoGuardada === "1";
 
-        return tieneValor || tieneFoto;
+        return tieneValor || tieneObs || tieneFoto;
     }
 
     function actualizarCompletados(){
@@ -1962,7 +2263,7 @@ document.addEventListener("DOMContentLoaded", function(){
                 actualizarCompletados();
             }
 
-            // No guardar si el foco sigue dentro de la misma fila.
+            // No guardar si el foco pasó a OBSERVACIÓN o FOTO dentro de la misma fila.
             guardarFilaSiSalio(row);
         });
 
@@ -1989,10 +2290,10 @@ document.addEventListener("DOMContentLoaded", function(){
                     nombre.textContent = (campo.files && campo.files[0]) ? "Foto cargada" : "Sin foto";
                 }
 
-                // Foto: guardar solo cuando salga de la fila.
+                // Foto: guardar solo cuando salga de la fila, para permitir escribir observación.
                 guardarFilaSiSalio(row);
             }else if(campo.classList.contains("valor-choice")){
-                // Selector: guardar solo cuando salga de la fila.
+                // Selector: guardar solo cuando salga de la fila, para permitir escribir observación.
                 guardarFilaSiSalio(row);
             }
         });
@@ -2158,7 +2459,7 @@ HTML_REGISTROS = """
                 <tr>
                     <th>ID</th><th>Fecha</th><th>Hora</th><th>Operador</th><th>Zona</th>
                     <th>Sistema</th><th>Equipo</th><th>Descripción</th><th>Valor</th>
-                    <th>Unidad</th><th>Foto</th>
+                    <th>Unidad</th><th>Obs.</th><th>Foto</th>
                 </tr>
             </thead>
             <tbody>
@@ -2174,6 +2475,7 @@ HTML_REGISTROS = """
                     <td>{{ r['descripcion'] }}</td>
                     <td>{{ r['valor'] }}</td>
                     <td>{{ r['unidad'] }}</td>
+                    <td>{{ r['observacion'] }}</td>
                     <td>
                         {% if r['foto'] %}
                             <a class="foto" href="{{ url_for('ver_foto', filename=r['foto']) }}" target="_blank">Ver</a>
