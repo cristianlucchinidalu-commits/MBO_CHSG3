@@ -626,6 +626,11 @@ HTML_INDEX = """
             background:#4b5563;
         }
 
+        .mobile-check,
+        .mobile-camera{
+            display:none !important;
+        }
+
         .panel{
             background:rgba(255,255,255,.92);
             padding:14px;
@@ -1411,7 +1416,7 @@ HTML_INDEX = """
                 grid-area:head;
                 display:flex !important;
                 align-items:center;
-                gap:0;
+                gap:10px;
                 padding:16px 14px 6px 18px;
                 border:0;
             }
@@ -1427,6 +1432,44 @@ HTML_INDEX = """
                 font-size:17px;
                 line-height:1.22;
                 text-transform:uppercase;
+                flex:1 1 auto;
+                min-width:0;
+            }
+
+            .mobile-check{
+                display:none;
+                align-items:center;
+                justify-content:center;
+                width:28px;
+                height:28px;
+                border-radius:999px;
+                background:linear-gradient(135deg, #16a34a, #22c55e);
+                color:#ffffff;
+                font-size:16px;
+                font-weight:900;
+                box-shadow:0 6px 14px rgba(34,197,94,.35);
+                flex:0 0 auto;
+            }
+
+            tr.item-row.row-complete .mobile-check{
+                display:inline-flex;
+            }
+
+            .mobile-camera{
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                width:36px;
+                height:36px;
+                border-radius:12px;
+                border:1px solid rgba(96,165,250,.35);
+                background:rgba(30,64,175,.24);
+                color:#dbeafe;
+                text-decoration:none;
+                font-size:18px;
+                line-height:1;
+                flex:0 0 auto;
+                cursor:pointer;
             }
 
             .desc-cell{
@@ -1595,6 +1638,7 @@ HTML_INDEX = """
                 display:flex !important;
                 grid-area:head !important;
                 align-items:center !important;
+                gap:10px !important;
                 padding:16px 14px 6px 18px !important;
                 border:0 !important;
                 background:transparent !important;
@@ -1630,6 +1674,44 @@ HTML_INDEX = """
                 font-size:17px !important;
                 line-height:1.22 !important;
                 text-transform:uppercase !important;
+                flex:1 1 auto !important;
+                min-width:0 !important;
+            }
+
+            #tablaMBO .mobile-check{
+                display:none !important;
+                align-items:center !important;
+                justify-content:center !important;
+                width:28px !important;
+                height:28px !important;
+                border-radius:999px !important;
+                background:linear-gradient(135deg, #16a34a, #22c55e) !important;
+                color:#ffffff !important;
+                font-size:16px !important;
+                font-weight:900 !important;
+                box-shadow:0 6px 14px rgba(34,197,94,.35) !important;
+                flex:0 0 auto !important;
+            }
+
+            #tablaMBO tr.item-row.row-complete .mobile-check{
+                display:inline-flex !important;
+            }
+
+            #tablaMBO .mobile-camera{
+                display:inline-flex !important;
+                align-items:center !important;
+                justify-content:center !important;
+                width:36px !important;
+                height:36px !important;
+                border-radius:12px !important;
+                border:1px solid rgba(96,165,250,.35) !important;
+                background:rgba(30,64,175,.24) !important;
+                color:#dbeafe !important;
+                text-decoration:none !important;
+                font-size:18px !important;
+                line-height:1 !important;
+                flex:0 0 auto !important;
+                cursor:pointer !important;
             }
 
             #tablaMBO .desc-main,
@@ -1849,6 +1931,8 @@ HTML_INDEX = """
 
                         <td class="mobile-head" data-label="N°">
                             <span class="mobile-title">{{ item['descripcion'] }}</span>
+                            <span class="mobile-check" aria-hidden="true">✓</span>
+                            <label class="mobile-camera" for="foto_{{ item['id'] }}" title="Tomar foto">📷</label>
                         </td>
 
                         <td class="center" data-label="NIVEL">{{ item['nivel'] or '' }}</td>
@@ -1901,7 +1985,7 @@ HTML_INDEX = """
 
                         <td class="foto-cell" data-label="FOTO">
                             <label class="foto-pill">
-                                <input class="foto campo-control" type="file" name="foto_{{ item['id'] }}" accept="image/*" capture="environment">
+                                <input id="foto_{{ item['id'] }}" class="foto campo-control" type="file" name="foto_{{ item['id'] }}" accept="image/*" capture="environment">
                                 <span>📷 Foto</span>
                             </label>
                             <div class="foto-name">Sin foto</div>
