@@ -958,11 +958,6 @@ HTML_INDEX = """
             background:linear-gradient(135deg, #15803d, #2f8f46);
         }
 
-        textarea.obs{
-            min-width:160px;
-            resize:vertical;
-        }
-
         input.foto{
             min-width:145px;
             font-size:12px;
@@ -1010,20 +1005,16 @@ HTML_INDEX = """
         #tablaMBO th:nth-child(1),
         #tablaMBO th:nth-child(2),
         #tablaMBO th:nth-child(3),
-        #tablaMBO th:nth-child(7),
         #tablaMBO tr.item-row td:nth-child(1),
         #tablaMBO tr.item-row td:nth-child(2),
-        #tablaMBO tr.item-row td:nth-child(3),
-        #tablaMBO tr.item-row td:nth-child(7){
+        #tablaMBO tr.item-row td:nth-child(3){
             display:none !important;
         }
 
-        #tablaMBO th:nth-child(4){ width:36%; }
-        #tablaMBO th:nth-child(5){ width:7%; }
-        #tablaMBO th:nth-child(6){ width:9%; }
-        #tablaMBO th:nth-child(8){ width:14%; }
-        #tablaMBO th:nth-child(9){ width:20%; }
-        #tablaMBO th:nth-child(10){ width:14%; }
+        #tablaMBO th:nth-child(4){ width:48%; }
+        #tablaMBO th:nth-child(5){ width:8%; }
+        #tablaMBO th:nth-child(6){ width:22%; }
+        #tablaMBO th:nth-child(7){ width:22%; }
 
         #tablaMBO th{
             background:#f8fafc;
@@ -1108,8 +1099,7 @@ HTML_INDEX = """
             font-weight:700;
         }
 
-        #tablaMBO input.valor,
-        #tablaMBO textarea.obs{
+        #tablaMBO input.valor{
             width:100%;
             min-width:0;
             border-radius:8px;
@@ -1120,11 +1110,6 @@ HTML_INDEX = """
         #tablaMBO input.valor{
             min-height:42px;
             text-align:center;
-        }
-
-        #tablaMBO textarea.obs{
-            min-height:42px;
-            resize:vertical;
         }
 
         #tablaMBO .choice-group{
@@ -1247,8 +1232,7 @@ HTML_INDEX = """
 
             #tablaMBO tr.item-row td:nth-child(1),
             #tablaMBO tr.item-row td:nth-child(2),
-            #tablaMBO tr.item-row td:nth-child(3),
-            #tablaMBO tr.item-row td:nth-child(7){
+            #tablaMBO tr.item-row td:nth-child(3){
                 display:none !important;
             }
 
@@ -1362,7 +1346,6 @@ HTML_INDEX = """
 
             .sis,
             .ref,
-            textarea.obs,
             input.valor,
             input.foto{
                 min-width:0;
@@ -1374,7 +1357,6 @@ HTML_INDEX = """
             }
 
             input.valor,
-            textarea.obs,
             input.foto{
                 font-size:15px;
                 padding:12px;
@@ -1404,10 +1386,6 @@ HTML_INDEX = """
 
             .foto-name{
                 max-width:100%;
-            }
-
-            textarea.obs{
-                min-height:44px;
             }
 
             .preview{
@@ -1549,10 +1527,7 @@ HTML_INDEX = """
                         <th>SISTEMA / EQUIPO</th>
                         <th>DESCRIPCIÓN</th>
                         <th>UNIDAD</th>
-                        <th>SEÑAL</th>
-                        <th>REFERENCIA</th>
                         <th>VALOR</th>
-                        <th>OBSERVACIÓN</th>
                         <th>FOTO</th>
                     </tr>
                 </thead>
@@ -1565,7 +1540,7 @@ HTML_INDEX = """
 
                     {% if grupo_actual != ns.grupo %}
                         <tr class="grupo group-row" data-nivel="{{ item['nivel'] or '' }}">
-                            <td colspan="10">
+                            <td colspan="7">
                                 <div class="group-inner">
                                     <span class="group-title">
                                         {{ item['nivel'] or '-' }} / {{ item['sistema'] or '-' }}
@@ -1600,16 +1575,16 @@ HTML_INDEX = """
 
                         <td class="desc desc-cell" data-label="DESCRIPCIÓN">
                             <div class="desc-main">{{ item['descripcion'] }}</div>
-                            {% if item['referencia'] %}
-                                <div class="ref-inline">REF: {{ item['referencia'] }}</div>
+                            {% if item['referencia'] or item['senal'] %}
+                                <div class="ref-inline">
+                                    {% if item['referencia'] %}REF: {{ item['referencia'] }}{% endif %}
+                                    {% if item['referencia'] and item['senal'] %} | {% endif %}
+                                    {% if item['senal'] %}SEÑAL: {{ item['senal'] }}{% endif %}
+                                </div>
                             {% endif %}
                         </td>
 
                         <td class="center" data-label="UNIDAD">{{ item['unidad'] or '' }}</td>
-
-                        <td class="center" data-label="SEÑAL">{{ item['senal'] or '' }}</td>
-
-                        <td class="ref" data-label="REFERENCIA">{{ item['referencia'] or '' }}</td>
 
                         <td data-label="VALOR">
                             {% if item['valor_opciones'] %}
@@ -1624,10 +1599,6 @@ HTML_INDEX = """
                             {% else %}
                                 <input class="valor campo-control" type="text" name="valor_{{ item['id'] }}" placeholder="{% if item.get('convertir_horas') %}Ej: 20D15H20M10S{% else %}Valor{% endif %}" data-convert-horas="{% if item.get('convertir_horas') %}1{% else %}0{% endif %}">
                             {% endif %}
-                        </td>
-
-                        <td data-label="OBSERVACIÓN">
-                            <textarea class="obs campo-control" name="obs_{{ item['id'] }}" rows="1" placeholder="Observación"></textarea>
                         </td>
 
                         <td data-label="FOTO">
@@ -1812,8 +1783,7 @@ document.addEventListener("DOMContentLoaded", function(){
         formData.append("usuario", operadorRegistro ? operadorRegistro.value.trim() : "");
         formData.append("valor", obtenerValorFila(row));
 
-        const obs = row.querySelector("textarea.obs");
-        formData.append("observacion", obs ? obs.value.trim() : "");
+        formData.append("observacion", "");
 
         const foto = row.querySelector("input.foto");
         if(foto && foto.files && foto.files[0]){
@@ -1872,16 +1842,14 @@ document.addEventListener("DOMContentLoaded", function(){
 
     function rowTieneDato(row){
         const valor = row.querySelector("input.valor");
-        const obs = row.querySelector("textarea.obs");
         const foto = row.querySelector("input.foto");
 
         const valorChoice = row.querySelector("input.valor-choice:checked");
 
         const tieneValor = (valor && valor.value.trim() !== "") || !!valorChoice;
-        const tieneObs = obs && obs.value.trim() !== "";
         const tieneFoto = (foto && foto.files && foto.files.length > 0) || row.dataset.fotoGuardada === "1";
 
-        return tieneValor || tieneObs || tieneFoto;
+        return tieneValor || tieneFoto;
     }
 
     function actualizarCompletados(){
@@ -1994,7 +1962,7 @@ document.addEventListener("DOMContentLoaded", function(){
                 actualizarCompletados();
             }
 
-            // No guardar si el foco pasó a OBSERVACIÓN o FOTO dentro de la misma fila.
+            // No guardar si el foco sigue dentro de la misma fila.
             guardarFilaSiSalio(row);
         });
 
@@ -2021,10 +1989,10 @@ document.addEventListener("DOMContentLoaded", function(){
                     nombre.textContent = (campo.files && campo.files[0]) ? "Foto cargada" : "Sin foto";
                 }
 
-                // Foto: guardar solo cuando salga de la fila, para permitir escribir observación.
+                // Foto: guardar solo cuando salga de la fila.
                 guardarFilaSiSalio(row);
             }else if(campo.classList.contains("valor-choice")){
-                // Selector: guardar solo cuando salga de la fila, para permitir escribir observación.
+                // Selector: guardar solo cuando salga de la fila.
                 guardarFilaSiSalio(row);
             }
         });
@@ -2190,7 +2158,7 @@ HTML_REGISTROS = """
                 <tr>
                     <th>ID</th><th>Fecha</th><th>Hora</th><th>Operador</th><th>Zona</th>
                     <th>Sistema</th><th>Equipo</th><th>Descripción</th><th>Valor</th>
-                    <th>Unidad</th><th>Obs.</th><th>Foto</th>
+                    <th>Unidad</th><th>Foto</th>
                 </tr>
             </thead>
             <tbody>
@@ -2206,7 +2174,6 @@ HTML_REGISTROS = """
                     <td>{{ r['descripcion'] }}</td>
                     <td>{{ r['valor'] }}</td>
                     <td>{{ r['unidad'] }}</td>
-                    <td>{{ r['observacion'] }}</td>
                     <td>
                         {% if r['foto'] %}
                             <a class="foto" href="{{ url_for('ver_foto', filename=r['foto']) }}" target="_blank">Ver</a>
