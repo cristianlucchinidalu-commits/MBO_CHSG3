@@ -409,71 +409,39 @@ def cargar_items_desde_excel(forzar=False):
 
 def aplicar_ajustes_comunes():
     """
-    Ajustes manuales para la hoja COMUNES:
-    - Mantiene la separación BARRA A / BARRA B en SALA ELÉCTRICA 400 V.
-    - Separa los nuevos bloques COMPRESOR #1, COMPRESOR #2 y COMPRESOR #3
-      en los sistemas de aire comprimido.
+    Ajuste manual para la hoja COMUNES:
+    - Ítems 19 al 29: BARRA A
+    - Ítems 30 al 40: BARRA B
 
-    Esto solo corrige la agrupación visual del aplicativo y registros ya guardados.
+    Se actualiza el campo equipo para que la pantalla agrupe y diferencie correctamente
+    ambas barras dentro de SALA ELÉCTRICA 400 V. También actualiza registros ya guardados.
     """
     conn = conectar()
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT id, descripcion, sistema, equipo
+        SELECT id
         FROM items_mbo
         WHERE zona = ? AND activo = 1
         ORDER BY id
     """, ("COMUNES",))
     filas = cur.fetchall()
 
-    compresor_actual = ""
-
     for numero_item, fila in enumerate(filas, start=1):
-        item_id = fila["id"]
-        desc_norm = normalizar(fila["descripcion"])
-        sistema_norm = normalizar(fila["sistema"])
-        equipo_norm = normalizar(fila["equipo"])
+        equipo_barra = ""
+        if 19 <= numero_item <= 29:
+            equipo_barra = "BARRA A"
+        elif 30 <= numero_item <= 40:
+            equipo_barra = "BARRA B"
 
-        equipo_nuevo = ""
-
-        # Ajuste histórico de SALA ELÉCTRICA 400 V.
-        # Se limita al sistema eléctrico para no afectar los nuevos compresores.
-        if "SALA ELECTRICA" in sistema_norm or "400" in sistema_norm or equipo_norm.startswith("BARRA"):
-            if 19 <= numero_item <= 29:
-                equipo_nuevo = "BARRA A"
-            elif 30 <= numero_item <= 40:
-                equipo_nuevo = "BARRA B"
-
-        # Nuevos bloques de COMUNES: compresores 1, 2 y 3.
-        # Detecta encabezados como SELECTOR CONTROL - COMPRESOR 1,
-        # TEMPERATURA - COMPRESOR 2, etc. y agrupa las filas siguientes.
-        if "COMPRESOR" in desc_norm or "AIRE COMPRIMIDO" in sistema_norm:
-            if re.search(r"COMPRESOR\s*(NRO\.?|N°|NO\.?|#)?\s*1", desc_norm):
-                compresor_actual = "COMPRESOR #1"
-            elif re.search(r"COMPRESOR\s*(NRO\.?|N°|NO\.?|#)?\s*2", desc_norm):
-                compresor_actual = "COMPRESOR #2"
-            elif re.search(r"COMPRESOR\s*(NRO\.?|N°|NO\.?|#)?\s*3", desc_norm):
-                compresor_actual = "COMPRESOR #3"
-
-            # Filas asociadas a tanque N°1/N°2/N°3 también se ubican en su compresor.
-            if re.search(r"TANQUE\s*(NRO\.?|N°|NO\.?|#)?\s*1", desc_norm):
-                compresor_actual = "COMPRESOR #1"
-            elif re.search(r"TANQUE\s*(NRO\.?|N°|NO\.?|#)?\s*2", desc_norm):
-                compresor_actual = "COMPRESOR #2"
-            elif re.search(r"TANQUE\s*(NRO\.?|N°|NO\.?|#)?\s*3", desc_norm):
-                compresor_actual = "COMPRESOR #3"
-
-            if compresor_actual:
-                equipo_nuevo = compresor_actual
-
-        if equipo_nuevo:
-            cur.execute("UPDATE items_mbo SET equipo = ? WHERE id = ?", (equipo_nuevo, item_id))
+        if equipo_barra:
+            item_id = fila["id"]
+            cur.execute("UPDATE items_mbo SET equipo = ? WHERE id = ?", (equipo_barra, item_id))
             cur.execute("""
                 UPDATE registros_mbo
                 SET equipo = ?
                 WHERE zona = ? AND item_id = ?
-            """, (equipo_nuevo, "COMUNES", item_id))
+            """, (equipo_barra, "COMUNES", item_id))
 
     conn.commit()
     conn.close()
@@ -510,19 +478,7 @@ def aplicar_ajustes_colchon_aire_solo_app():
         es_item_136_app = numero_item == 136 and es_operador_turno
         es_fila_footer_excel = fila_excel in (146, 136) and es_operador_turno
 
-        # Ocultar solo en el aplicativo la primera fila técnica de COLCHÓN DE AIRE
-        # cuando aparece como grupo 0 / UNIDADES / UNIDADES o POTENCIA TOTAL GENERADA.
-        es_primera_fila_no_app = (
-            numero_item == 1
-            and (
-                desc_norm == "POTENCIA TOTAL GENERADA"
-                or nivel_norm in ("0", "")
-                or sistema_norm == "UNIDADES"
-                or equipo_norm == "UNIDADES"
-            )
-        )
-
-        if es_footer_accesos or es_item_136_app or es_fila_footer_excel or es_primera_fila_no_app:
+        if es_footer_accesos or es_item_136_app or es_fila_footer_excel:
             cur.execute("UPDATE items_mbo SET activo = 0 WHERE id = ?", (fila["id"],))
 
     conn.commit()
@@ -3304,7 +3260,7 @@ def recargar_items():
     total, mensaje = cargar_items_desde_excel(forzar=True)
     aplicar_ajustes_comunes()
     aplicar_ajustes_colchon_aire_solo_app()
-    flash(f"{mensaje} Ítems cargados: {total}. Ajustes aplicados: COMUNES BARRA A/B + COMPRESORES #1/#2/#3, y COLCHON DE AIRE sin primera fila técnica ni OPERADOR DE TURNO como ítem.")
+    flash(f"{mensaje} Ítems cargados: {total}. Ajustes aplicados: COMUNES BARRA A/B y COLCHON DE AIRE sin mostrar OPERADOR DE TURNO como ítem.")
     return redirect(url_for("index"))
 
 
